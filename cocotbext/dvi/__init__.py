@@ -24,4 +24,5 @@ THE SOFTWARE.
 
 from .version import __version__
 
+from .dvi_driver import DVIDriver
 from .dvi_sink import DVISink
