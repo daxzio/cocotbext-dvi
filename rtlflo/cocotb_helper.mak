@@ -60,9 +60,11 @@ ifeq ($(TOPLEVEL_LANG),verilog)
 	else ifeq ($(SIM), ius)
 		COMPILE_ARGS += -disable_sem2009
 		COMPILE_ARGS += -sv
+		COMPILE_ARGS += -top ${TOPLEVEL}
 	else ifeq ($(SIM),xcelium)
 		COMPILE_ARGS += -disable_sem2009
 		COMPILE_ARGS += -sv
+		COMPILE_ARGS += -top ${TOPLEVEL}
 	else ifeq ($(SIM),verilator)
 	    COMPILE_ARGS += -DCOCOTB_VERILATOR=1
 		COMPILE_ARGS += --no-timing -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-STMTDLY
@@ -70,6 +72,14 @@ ifeq ($(TOPLEVEL_LANG),verilog)
 		#SIM_ARGS += --trace 
 	endif
 endif
+
+${CDSLIB}:
+	echo "include \$${INCISIVE_HOME}/tools.lnx86/inca/files/cds.lib" > ${CDSLIB}
+
+cdslib:: ${CDSLIB}
+
+all_libs_clean::
+	@rm -rf ${CDSLIB}
 
 waves:
 ifeq ($(SIM), icarus)
@@ -81,5 +91,5 @@ else ifeq ($(SIM),verilator)
 endif
 
 clean::
-	rm -rf __pycache__/ .simvision/ .Xil/ results.xml *.trn *.dsn vivado* *.vcd *.out irun* simvision* xrun* .bpad/ waves.shm/ *.err INCA_libs/ *.fst
+	rm -rf __pycache__/ .simvision/ .Xil/ results.xml *.trn *.dsn vivado* *.vcd *.out irun* simvision* xrun* .bpad/ waves.shm/ *.err INCA_libs/ *.fst ncvlog.log
 
