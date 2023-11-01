@@ -29,7 +29,7 @@ endif
 
 gowin_library_clean:
 	@rm -rf ${GOWIN_LIBS}
-	@sed -i '/gowin/d' ${CDSLIB}
+	@sed -i '/gowin/d' ${CDSLIB} || true
 
 cdslib:: gowin_cdslib
 

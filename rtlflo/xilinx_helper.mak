@@ -4,7 +4,11 @@ CDSLIB?=./cds_${SIM}.lib
 COMPILE_LIBS?=../../libs
 RTLFLO_PATH?=../../rtlflo
 
-ifneq ($(XILINX_BASE),)
+ifneq ($(XILINX_VIVADO),)
+XILINX_BASE?=${XILINX_VIVADO}/data
+endif
+
+ifneq (${XILINX_BASE},)
 	UNISIMS_VER_CNT=`grep -s unisims_ver ${CDSLIB} | wc -l`
 	UNISIMS_VHDL_CNT=`grep -s unisim ${CDSLIB} | wc -l`
 	
@@ -69,28 +73,23 @@ xilinx_cdslib:
 
 ${COMPILE_LIBS}/ius/xilinx/unisim: ${CDSLIB} xilinx_cdslib
 	ncvhdl -MESSAGES -NOLOG -64bit -v93 -CDSLIB ${CDSLIB} -WORK unisim \
-		/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/unisim_VPKG.vhd \
-		/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/unisim_VCOMP.vhd \
-		/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/primitive/IBUFDS.vhd \
-		/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/primitive/IDELAYE2.vhd \
-		/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/primitive/MMCME2_ADV.vhd 
-	ncvhdl -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -WORK secureip \
-		/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/secureip/ISERDESE2.vhd 
+		${XILINX_BASE}/vhdl/src/unisims/unisim_VPKG.vhd \
+		${XILINX_BASE}/vhdl/src/unisims/unisim_VCOMP.vhd \
+		${XILINX_BASE}/vhdl/src/unisims/primitive/*.vhd 
+	ncvhdl -MESSAGES -NOLOG -64bit -v93 -CDSLIB ${CDSLIB} -WORK secureip \
+		${XILINX_BASE}/vhdl/src/unisims/secureip/*.vhd 
 
 ${COMPILE_LIBS}/ius/xilinx/unisims_ver: ${CDSLIB} xilinx_cdslib
-	ncvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -WORK unisims_ver -f ${RTLFLO_PATH}/xilinx/unisims_ver/.cxl.verilog.unisim.unisims_ver.lin64.cmf
-	ncvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -WORK unisims_ver ${XILINX_BASE}/verilog/src/unisims/MMCME2_ADV.v
-	ncvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -WORK unisims_ver /opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/secureip/iserdese2/iserdese2_002.vp
-	ncvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -SV -WORK unisims_ver -f ${RTLFLO_PATH}/xilinx/unisims_ver/.cxl.systemverilog.unisim.unisims_ver.lin64.cmf
+	ncvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -WORK unisims_ver ${XILINX_BASE}/verilog/src/unisims/*.v
+	ncvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -SV -WORK unisims_ver ${XILINX_BASE}/verilog/src/unisims/*.sv
 
 ${COMPILE_LIBS}/xcelium/unisims_ver: ${CDSLIB} xilinx_cdslib
 # 	mkdir -p ${COMPILE_LIBS}/${SIM}/xilinx/unisims_ver
 # 	@if [ "${UNISIMS_VER_CNT}" -eq "0" ]; then \
 # 		echo "DEFINE unisims_ver ${COMPILE_LIBS}/${SIM}/xilinx/unisims_ver" >> ${CDSLIB} ; \
 # 	fi
-	xmvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -WORK unisims_ver -f ${RTLFLO_PATH}/xilinx/unisims_ver/.cxl.verilog.unisim.unisims_ver.lin64.cmf
-	xmvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -WORK unisims_ver ${XILINX_BASE}/verilog/src/unisims/MMCME2_ADV.v
-	xmvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -SV -WORK unisims_ver -f ${RTLFLO_PATH}/xilinx/unisims_ver/.cxl.systemverilog.unisim.unisims_ver.lin64.cmf
+	xmvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -WORK unisims_ver ${XILINX_BASE}/verilog/src/unisims/*.v
+	xmvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -SV -WORK unisims_ver ${XILINX_BASE}/verilog/src/unisims/*.sv
 
 #xilinx_ius_lib: | ${COMPILE_LIBS}/ius/xilinx/unisim ${COMPILE_LIBS}/ius/xilinx/unisims_ver
 xilinx_ius_lib: | ${COMPILE_LIBS}/ius/xilinx/unisim ${COMPILE_LIBS}/ius/xilinx/unisims_ver
@@ -120,8 +119,8 @@ endif
 
 xilinx_library_clean:
 	@rm -rf ${COMPILE_LIBS}/${SIM}/xilinx
-	@sed -i '/unisim/d' ${CDSLIB}
-	@sed -i '/secureip/d' ${CDSLIB}
+	@sed -in '/unisim/d' ${CDSLIB} || true
+	@sed -in '/secureip/d' ${CDSLIB} || true
 
 cdslib:: xilinx_cdslib
 
