@@ -40,7 +40,7 @@ class DiffClock(Clock):
         self.signal_n = signal_n
 
 
-    async def start(self, cycles=None, start_high=True):
+    async def start(self, cycles=None, start_high=True,wait_cycles=None):
         r"""Clocking coroutine.  Start driving your clock by :func:`cocotb.start`\ ing a
         call to this.
 
@@ -53,6 +53,13 @@ class DiffClock(Clock):
                 Default is ``True``.
 
         """
+        await Timer(8, units='ns')
+        if not wait_cycles is None:
+            self.signal.value   = start_high
+            self.signal_n.value = not start_high
+            t = Timer(self.period*wait_cycles)
+            await t
+        
         t = Timer(self.half_period)
         if cycles is None:
             it = itertools.count()

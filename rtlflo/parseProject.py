@@ -12,7 +12,7 @@ def replaceEnvironVar(x):
             raise Exception(f"Environments variable: ${g} not set")
         y = os.environ[g]
         y = re.sub('\\\\', "/", y)
-        x = re.sub(f"\${{{g}}}", y, x)
+        x = re.sub(f"\\${{{g}}}", y, x)
     return x
 
 class rtlFile:

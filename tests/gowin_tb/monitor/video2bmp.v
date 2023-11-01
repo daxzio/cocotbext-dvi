@@ -21,7 +21,7 @@
 
 module video2bmp
 (
-  input       link_i   , //0,单像素；1，双像素
+  input       link_i   , //0,
   input       en_i     ,
   input       pclk_i   ,
   input       vs_i     ,
@@ -167,14 +167,14 @@ begin
           data_r_i_mem[data_mem_addr+1'b1] = data1_r_i;
           data_g_i_mem[data_mem_addr+1'b1] = data1_g_i;
           data_b_i_mem[data_mem_addr+1'b1] = data1_b_i;
-          data_mem_addr = data_mem_addr +2'd2;   //双像素模式，每次加2
+          data_mem_addr = data_mem_addr +2'd2;   
         end
       else
         begin
           data_r_i_mem[data_mem_addr]      =data0_r_i;
           data_g_i_mem[data_mem_addr]      =data0_g_i;
           data_b_i_mem[data_mem_addr]      =data0_b_i;
-          data_mem_addr = data_mem_addr +1'b1;   //单像素模式，每次加1
+          data_mem_addr = data_mem_addr +1'b1;  
         end
     end
 end
@@ -213,9 +213,7 @@ always @ (posedge pclk_i)
                 data_i_mem[3*i+1+i/BMP_OUTPUTED_WIDTH*1]=data_g_i_mem[i];
                 data_i_mem[3*i+2+i/BMP_OUTPUTED_WIDTH*1]=data_r_i_mem[i];
                 end
-        
-        //bmp是倒序存储，先存储最后一行，但每行内部是按顺序的
-        //以下将图像顺序倒转
+
         for(i=0;i<BMP_OUTPUTED_HEIGHT;i=i+1)
             for(j=0;j<BMP_OUTPUTED_WIDTH*3+BMP_OUTPUTED_WIDTH*3%4;j=j+1)
                 data_bmp_mem[i*(BMP_OUTPUTED_WIDTH*3+BMP_OUTPUTED_WIDTH*3%4)+j]=data_i_mem[(BMP_OUTPUTED_HEIGHT-i-1)*(BMP_OUTPUTED_WIDTH*3+BMP_OUTPUTED_WIDTH*3%4)+j];

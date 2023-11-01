@@ -82,6 +82,7 @@ ${COMPILE_LIBS}/ius/xilinx/unisim: ${CDSLIB} xilinx_cdslib
 ${COMPILE_LIBS}/ius/xilinx/unisims_ver: ${CDSLIB} xilinx_cdslib
 	ncvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -WORK unisims_ver ${XILINX_BASE}/verilog/src/unisims/*.v
 	ncvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -SV -WORK unisims_ver ${XILINX_BASE}/verilog/src/unisims/*.sv
+	ncvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -WORK unisims_ver ${XILINX_BASE}/secureip/*/*.vp
 
 ${COMPILE_LIBS}/xcelium/unisims_ver: ${CDSLIB} xilinx_cdslib
 # 	mkdir -p ${COMPILE_LIBS}/${SIM}/xilinx/unisims_ver
@@ -91,10 +92,9 @@ ${COMPILE_LIBS}/xcelium/unisims_ver: ${CDSLIB} xilinx_cdslib
 	xmvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -WORK unisims_ver ${XILINX_BASE}/verilog/src/unisims/*.v
 	xmvlog -MESSAGES -NOLOG -64bit -CDSLIB ${CDSLIB} -SV -WORK unisims_ver ${XILINX_BASE}/verilog/src/unisims/*.sv
 
-#xilinx_ius_lib: | ${COMPILE_LIBS}/ius/xilinx/unisim ${COMPILE_LIBS}/ius/xilinx/unisims_ver
-xilinx_ius_lib: | ${COMPILE_LIBS}/ius/xilinx/unisim ${COMPILE_LIBS}/ius/xilinx/unisims_ver
+xilinx_ius_lib: | ${COMPILE_LIBS}/ius/xilinx/unisims_ver ${COMPILE_LIBS}/ius/xilinx/unisim
 
-xilinx_xcelium_lib: | ${COMPILE_LIBS}/ius/xilinx/unisim ${COMPILE_LIBS}/xcelium/unisims_ver
+xilinx_xcelium_lib: | ${COMPILE_LIBS}/ius/xilinx/unisims_ver ${COMPILE_LIBS}/xcelium/unisim
 
 #ncvhdl -MESSAGES -NOLOG -64bit -v93 -CDSLIB ./cds_ius.lib -WORK unisim  /opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/primitive/MMCME2_ADV.vhd 
 

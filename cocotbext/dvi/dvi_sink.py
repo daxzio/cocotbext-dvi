@@ -82,7 +82,6 @@ class DVISink(CocoTBExtLogger):
 
     def __init__(self, dut, dvi_prefix="tmds_out", *args, **kwargs):
         super().__init__(type(self).__name__)
-        self.enable_logging()
        
         self.log.info("DVI Sink")
         self.log.info(f"cocotbext-dvi version {__version__}")
