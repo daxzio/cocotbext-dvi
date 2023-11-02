@@ -29,6 +29,7 @@ from cocotb.utils import get_sim_time
 
 from .version import __version__
 from .cocotbext_logger import CocoTBExtLogger
+from .tmds import TMDS
 
 
 class DVIHsync():

@@ -8,10 +8,10 @@ module dut # (
     ,parameter HSYNC_POL           = "NEGATIVE" //horizontal synchronization polarity. //"NEGATIVE" //"POSITIVE"
     ,parameter VSYNC_POL           = "NEGATIVE" //vertical synchronization polarity.   //"NEGATIVE" //"POSITIVE"
 )(
-   input        link_i       //
+   input        clk 
+  ,input        reset
+  ,input        link_i       //
   ,input        repeat_en    //0:bmp increase  , 1:bmp repeat
-  ,input        video_gen_en
-  ,input        pixel_clock 
   ,output       vsync        
   ,output       hsync        
   ,output       data_valid  
@@ -70,8 +70,8 @@ module dut # (
 //     //RGB to DVI
 //     DVI_TX_Top i_dvi_tx_top
 //     (
-//     	 .I_rst_n       (video_gen_en     )   //asynchronous reset, low active
-//     	,.I_rgb_clk     (pixel_clock   )   //pixel clock
+//     	 .I_rst_n       (reset     )   //asynchronous reset, low active
+//     	,.I_rgb_clk     (clk   )   //pixel clock
 //     	,.I_rgb_vs      (w_vsync       )  
 //     	,.I_rgb_hs      (w_hsync       )        
 //     	,.I_rgb_de      (w_data_valid  ) 
@@ -111,8 +111,8 @@ module dut # (
         ,.TMDS_Data_p    (tmds_in_data_p)
         ,.TMDS_Data_n    (tmds_in_data_n)
     	,.RefClk         (w_clk_200)
-    	,.aRst           (~video_gen_en)
-    	,.aRst_n         (video_gen_en)
+    	,.aRst           (~reset)
+    	,.aRst_n         (reset)
     	,.vid_pData      ( )
     	,.vid_pVDE       ( )
     	,.vid_pHSync     ( )
@@ -127,8 +127,8 @@ module dut # (
     	,.SCL_I          (1'b0)
     	,.SCL_O          ( )
     	,.SCL_T          ( )
-    	,.pRst           (~video_gen_en)
-    	,.pRst_n         (video_gen_en)
+    	,.pRst           (~reset)
+    	,.pRst_n         (reset)
     ); 
 
    //`ifdef COCOTB_SIM

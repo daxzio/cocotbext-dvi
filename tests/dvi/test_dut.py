@@ -9,10 +9,10 @@ from cocotbext.dvi import DVISink, DVIDriver
 
 class clkreset:
     def __init__(self, dut, clk_freq=17, reset_sense=1):
-        self.clk = dut.pixel_clock
+        self.clk = dut.clk
         self.clk_freq = clk_freq
 #         self.core_clk = dut.s_aclk
-        self.reset = dut.video_gen_en
+        self.reset = dut.reset
         self.reset_sense = reset_sense
 
     async def wait_clkn(self, length=1):

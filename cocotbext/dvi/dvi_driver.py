@@ -31,6 +31,7 @@ from .version import __version__
 from .cocotbext_logger import CocoTBExtLogger
 from .diffclock import DiffClock
 from .diffobject import DiffModifiableObject
+from .tmds import TMDS
 
 import cv2 as cv
 
@@ -160,107 +161,6 @@ class RGBDriver(CocoTBExtLogger):
                 self.vsync_cnt = self.vsync_cnt + 1
             
 
-class TMDSCoder:
-    CRTPAR0 = 0x354
-    CRTPAR1 = 0x0ab
-    CRTPAR2 = 0x154
-    CRTPAR3 = 0x2ab
-
-    def __init__(self):
-        self.cnt = 0
-    
-#     zero_cnt = 8 - one_cnt
-# 
-#     if self.cnt == 0 or one_cnt == 4:
-#         if q_m[8] == 0:
-#             self.cnt = self.cnt + zero_cnt - one_cnt
-#         else:
-#             self.cnt = self.cnt + one_cnt - zero_cnt
-#     else:
-#         if (self.cnt > 0 and one_cnt > zero_cnt) or (self.cnt < 0 and one_cnt < zero_cnt):
-#             self.cnt = self.cnt + 2 * q_m[8] + zero_cnt - one_cnt
-#         else:
-#             self.cnt = self.cnt - 2 * (not q_m[8]) + one_cnt - zero_cnt
-
-    def encode(self, vsync, hsync, de, rgb):
-        
-        tmdsout = 0
-        if de:
-            one_cnt = 0
-            for i in range(8):
-                one_cnt += ((rgb >> i) & 0x1)
-            zero_cnt = 8-one_cnt
-            
-            
-            d0 = (rgb & 0x1)
-            xor = 0
-            if (d0 and 4 == one_cnt) or one_cnt < 4:
-                xor = 1
-            
-            e = []
-            for i in range(8):
-                e.append(None)
-                e[i] = ((rgb>> i) & 0x1)
-                if not 0 == i:
-                    if xor:
-                        e[i] = e[i] ^ e[i-1]
-                    else:
-                        e[i] = (~(e[i] ^ e[i-1])) & 0x1
-                tmdsout |= e[i] << i
-            tmdsout |= xor << 8
-            self.cnt = 1
-            if 1 == self.cnt:
-                tmdsout = tmdsout ^ 0xff
-                tmdsout |= 0x1 << 9
-            
-#             print(f"0x{rgb:02x} {d0} {one_cnt} {xor} {tmdsout:03x}")
-#             print(e)
-            
-        else:
-            one_cnt = 0
-            if not vsync and not hsync:
-                tmdsout = self.CRTPAR0
-            elif not vsync and hsync:
-                tmdsout = self.CRTPAR1
-            elif vsync and not hsync:
-                tmdsout = self.CRTPAR2
-            elif vsync and hsync:
-                tmdsout = self.CRTPAR3
-        
-        if one_cnt > 4:
-            self.cnt = 1
-        else:
-            self.cnt = 0
-        return tmdsout 
-    
-#     def decode(self, tmdsin):
-#         dataout = 0
-#         crtl = 0
-#         de   = 0
-#         if self.CRTPAR0 == tmdsin:
-#             crtl = 0
-#         elif self.CRTPAR1 == tmdsin:
-#             crtl = 1
-#         elif self.CRTPAR2 == tmdsin:
-#             crtl = 2
-#         elif self.CRTPAR3 == tmdsin:
-#             crtl = 3
-#         else:
-#             de   = 1
-#             if ((tmdsin >> 9) & 0x1):
-#                 data = (~tmdsin) & 0xff
-#             else:
-#                 data =    tmdsin & 0xff
-#             d0 = (data << 1) & 0xfe
-#             d1 = data & 0xfe
-#             dataout = data & 0x1
-#             if ((tmdsin >> 8) & 0x1):
-#                 dataout |=   (d0 ^ d1) & 0xfe
-#             else:
-#                 dataout |= (~(d0 ^ d1)) & 0xfe
-# 
-#         return de, crtl, dataout 
-        
 class DVIDriver(CocoTBExtLogger):
 
     def __init__(self, dut, dvi_prefix="tmds_in", clk_freq=25.0, *args, **kwargs):
@@ -306,27 +206,23 @@ class DVIDriver(CocoTBExtLogger):
         
         #start_soon(DiffClock(self.clk_p, self.clk_n, self.clock_period, units="ns").start(start_high=False, wait_cycles=1263))        
         start_soon(DiffClock(self.clk_p, self.clk_n, self.clock_period, units="ns").start(start_high=False, wait_cycles=200))        
-
-        self._restart()
+        start_soon(self._generate_traffic())
 
     async def wait_10xbit(self, amount=1.0):
         await Timer(int(amount*self.clock_period)/10, units='ns')
 
-    def _restart(self):
-        start_soon(self._detect_clk())
-               
-    async def _detect_clk(self):
+    async def _generate_traffic(self):
         tx_data = [0, 0, 0]
         while True:
             await FallingEdge(self.clk_p)
-            tmds = [TMDSCoder() , TMDSCoder(), TMDSCoder()]
-            tx_data[0] = tmds[0].encode(self.sync.vsync.value, self.sync.hsync.value, self.sync.de.value, self.sync.data0.value)
-            tx_data[1] = tmds[1].encode(0, 0, self.sync.de.value, self.sync.data1.value)
-            tx_data[2] = tmds[2].encode(0, 0, self.sync.de.value, self.sync.data2.value)
+            tmds = [TMDS() , TMDS(), TMDS()]
+            tmds[0].encode(self.sync.data0.value, self.sync.de.value, self.sync.vsync.value, self.sync.hsync.value)
+            tmds[1].encode(self.sync.data1.value, self.sync.de.value)
+            tmds[2].encode(self.sync.data2.value, self.sync.de.value)
             for i in range(10):
                 tx = 0
                 for j in range(3):
-                    tx |= ((tx_data[j] >> i) & 0x1) << j
+                    tx |= ((tmds[j].tmdsout >> i) & 0x1) << j
                 self.data.value = tx
                 if i < 9:
                     await self.wait_10xbit()
