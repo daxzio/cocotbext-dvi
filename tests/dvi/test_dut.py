@@ -48,8 +48,9 @@ class testbench:
         self.link_i.setimmediatevalue(0)
         self.repeat_en.setimmediatevalue(1)
         
-        self.dvi_in = DVIDriver(dut, "/home/dkeeshan/projects/cocotbext-dvi/tests/gowin_tb/pic/img160.bmp" )
-        self.dvi_out = DVISink(dut)
+        image_file = "/home/dkeeshan/projects/cocotbext-dvi/tests/gowin_tb/pic/img160.bmp"
+        self.dvi_in = DVIDriver(dut, image_file)
+        self.dvi_out = DVISink(dut, image_file)
         #self.dvi.disable_logging()
 
         

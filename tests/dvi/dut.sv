@@ -130,6 +130,11 @@ module dut # (
     	,.pRst           (~reset)
     	,.pRst_n         (reset)
     ); 
+    
+    assign tmds_out_clk_p = tmds_in_clk_p;
+    assign tmds_out_clk_n = tmds_in_clk_n;
+    assign tmds_out_data_p = tmds_in_data_p;
+    assign tmds_out_data_n = tmds_in_data_n;
 
    //`ifdef COCOTB_SIM
     `ifdef COCOTB_ICARUS

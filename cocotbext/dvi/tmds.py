@@ -96,16 +96,26 @@ class TMDS:
     
     def decode(self, tmdsin):
         self.dataout = 0
-        self.crtl = 0
+        self.vsync = 0
+        self.hsync = 0
+        #self.crtl = 0
         self.de   = 0
         if self.CRTPAR0 == tmdsin:
-            self.crtl = 0
+            #self.crtl = 0
+            self.vsync = 0
+            self.hsync = 0
         elif self.CRTPAR1 == tmdsin:
-            self.crtl = 1
+            #self.crtl = 1
+            self.vsync = 0
+            self.hsync = 1
         elif self.CRTPAR2 == tmdsin:
-            self.crtl = 2
+            #self.crtl = 2
+            self.vsync = 1
+            self.hsync = 0
         elif self.CRTPAR3 == tmdsin:
-            self.crtl = 3
+            #self.crtl = 3
+            self.vsync = 1
+            self.hsync = 1
         else:
             self.de   = 1
             if ((tmdsin >> 9) & 0x1):
@@ -120,4 +130,4 @@ class TMDS:
             else:
                 self.dataout |= (~(d0 ^ d1)) & 0xfe
 
-        return self.de, self.crtl, self.dataout 
+        return self.dataout, self.de, self.vsync, self.hsync

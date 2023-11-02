@@ -54,6 +54,7 @@ class DVIDriver(CocoTBExtLogger):
         self.data_p  = getattr(dut, f"{dvi_prefix}_data_p")
         self.data_n  = getattr(dut, f"{dvi_prefix}_data_n")
 
+        self.tmds = [TMDS() , TMDS(), TMDS()]
 #         RGBDriver.__init__(
 #             self,
 #             self.clk_p, 
@@ -87,16 +88,15 @@ class DVIDriver(CocoTBExtLogger):
         await Timer(int(amount*self.clock_period)/10, units='ns')
 
     async def _generate_traffic(self):
-        tmds = [TMDS() , TMDS(), TMDS()]
         while True:
             await FallingEdge(self.clk_p)
-            tmds[0].encode(self.sync.data[0].value, self.sync.de.value, self.sync.vsync.value, self.sync.hsync.value)
-            tmds[1].encode(self.sync.data[1].value, self.sync.de.value)
-            tmds[2].encode(self.sync.data[2].value, self.sync.de.value)
+            self.tmds[0].encode(self.sync.data[0].value, self.sync.de.value, self.sync.vsync.value, self.sync.hsync.value)
+            self.tmds[1].encode(self.sync.data[1].value, self.sync.de.value)
+            self.tmds[2].encode(self.sync.data[2].value, self.sync.de.value)
             for i in range(10):
                 tx = 0
                 for j in range(3):
-                    tx |= ((tmds[j].tmdsout >> i) & 0x1) << j
+                    tx |= ((self.tmds[j].tmdsout >> i) & 0x1) << j
                 self.data.value = tx
                 if i < 9:
                     await self.wait_10xbit()

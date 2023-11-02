@@ -23,11 +23,12 @@ THE SOFTWARE.
 """
 import cv2 as cv
 class RGBImage():
-    def __init__(self, image_file):
+    def __init__(self, image_file=None):
         self.image_file = image_file
-        self.img = cv.imread(self.image_file, 1) 
-        self._height = self.img.shape[0]
-        self._width = self.img.shape[1]
+        if not image_file is None:
+            self.img = cv.imread(self.image_file, 1) 
+            self._height = self.img.shape[0]
+            self._width = self.img.shape[1]
     
     @property
     def height(self):

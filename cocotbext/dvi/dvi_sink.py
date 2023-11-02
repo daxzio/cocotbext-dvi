@@ -30,6 +30,7 @@ from cocotb.utils import get_sim_time
 from .version import __version__
 from .cocotbext_logger import CocoTBExtLogger
 from .tmds import TMDS
+from .rgbimage import RGBImage
 
 
 class DVIHsync():
@@ -81,9 +82,12 @@ class DVIFrame():
 
 class DVISink(CocoTBExtLogger):
 
-    def __init__(self, dut, dvi_prefix="tmds_out", *args, **kwargs):
+    def __init__(self, dut, image_file=None, dvi_prefix="tmds_out", *args, **kwargs):
         super().__init__(type(self).__name__)
        
+        self.image_file = image_file
+        self.img = RGBImage(self.image_file) 
+
         self.log.info("DVI Sink")
         self.log.info(f"cocotbext-dvi version {__version__}")
         self.log.info("Copyright (c) 2023 Dave Keeshan")
@@ -103,6 +107,7 @@ class DVISink(CocoTBExtLogger):
         self.data_ready = False
         self.time_delta = 0
         
+        self.tmds = [TMDS() , TMDS(), TMDS()]
         self.frames = []
         
         self._restart()
@@ -134,16 +139,10 @@ class DVISink(CocoTBExtLogger):
             if not (1000000/(2*new_time_delta)) == self.clk_freq:
                 raise Exception("Change in clock frequency detected")
 
-#     async def xxx(self):
-#         while True:
-#             await FallingEdge(self.clk)
-#             self.log.info(f"Falling edge")
-    
     async def _detect_data(self):
         while True:
             await FallingEdge(self.clk)
             if self.start:
-                #self.data_ready = False
                 self.tmdsin = [0, 0, 0]
                 await self.wait_bit(0.5)
                 for i in range(10):
@@ -155,45 +154,7 @@ class DVISink(CocoTBExtLogger):
                 self.data_ready = True
                 #self.log.info(f"0x{self.tmdsin[2]:02x} 0x{self.tmdsin[1]:02x} 0x{self.tmdsin[0]:02x}")
 
-    def tmds_decoder(self, tmdsin):
-        CRTPAR0 = 0x354
-        CRTPAR1 = 0x0ab
-        CRTPAR2 = 0x154
-        CRTPAR3 = 0x2ab
-        
-        dataout = 0
-        crtl = 0
-        de   = 0
-        if CRTPAR0 == tmdsin:
-            crtl = 0
-        elif CRTPAR1 == tmdsin:
-            crtl = 1
-        elif CRTPAR2 == tmdsin:
-            crtl = 2
-        elif CRTPAR3 == tmdsin:
-            crtl = 3
-        else:
-            de   = 1
-            if ((tmdsin >> 9) & 0x1):
-                data = (~tmdsin) & 0xff
-            else:
-                data =    tmdsin & 0xff
-            d0 = (data << 1) & 0xfe
-            d1 = data & 0xfe
-            dataout = data & 0x1
-            if ((tmdsin >> 8) & 0x1):
-                dataout |=   (d0 ^ d1) & 0xfe
-            else:
-                dataout |= (~(d0 ^ d1)) & 0xfe
-
-        return de, crtl, dataout 
-
-      
     async def _parse_data(self):
-        j =0
-        de = [0,0,0]
-        crtl = [0,0,0]
-        dataout = [0,0,0]
         frame = [[],[],[]]
         hsync_expected_length = None
         while True:
@@ -201,17 +162,14 @@ class DVISink(CocoTBExtLogger):
             self.vsync_last = self.vsync
             await FallingEdge(self.clk)
             if self.data_ready:
-                for i in range(len(dataout)):
-                    de[i], crtl[i], dataout[i] = self.tmds_decoder(self.tmdsin[i])
-                    if de[i]:
-                        frame[i].append(dataout[i])
+                for i in range(len(self.tmds)):
+                    self.tmds[i].decode(self.tmdsin[i])
+                    if self.tmds[i].de:
+                        frame[i].append(self.tmds[i].dataout)
                 
-                if not de[0]:
-                    self.hsync = bool(crtl[0] & 0x1)
-                    self.vsync = bool((crtl[0] >> 1) & 0x1)
-                    #self.log.info(f"0x{self.tmdsin[2]:02x} 0x{self.tmdsin[1]:02x} 0x{self.tmdsin[0]:02x} {de} {crtl} 0x{dataout2:x} 0x{dataout1:x}  0x{dataout0:x}")
-                    #raise
-                    j += 1
+                if not self.tmds[0].de:
+                    self.hsync = self.tmds[0].hsync
+                    self.vsync = self.tmds[0].vsync
             
             self.frame_complete = False
             if not self.vsync_last and self.vsync:
