@@ -48,8 +48,8 @@ class testbench:
         self.link_i.setimmediatevalue(0)
         self.repeat_en.setimmediatevalue(1)
         
-        self.dvi_in = DVIDriver(dut)
-        self.dvi = DVISink(dut)
+        self.dvi_in = DVIDriver(dut, "/home/dkeeshan/projects/cocotbext-dvi/tests/gowin_tb/pic/img160.bmp" )
+        self.dvi_out = DVISink(dut)
         #self.dvi.disable_logging()
 
         
@@ -95,10 +95,10 @@ async def test_dut_simple(dut):
 #     await tb.cr.wait_clkn(int(line_length/2))
 #     val = tb.genLine()    
 #     await tb.axi.write(val, line_length)
-    await tb.dvi.frame_finished()
-    tb.dvi.report_frame()
-    await tb.dvi.frame_finished()
-    tb.dvi.report_frame()
+    await tb.dvi_out.frame_finished()
+    tb.dvi_out.report_frame()
+    await tb.dvi_out.frame_finished()
+    tb.dvi_out.report_frame()
     
     #await tb.cr.wait_clkn(110000)
     #await tb.cr.wait_clkn(5000)

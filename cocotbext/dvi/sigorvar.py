@@ -23,37 +23,29 @@ THE SOFTWARE.
 """
 from cocotb.handle import ModifiableObject
 
-class DiffModifiableObject(ModifiableObject):
+class SignalOrVariable:
+    def __init__(self, signal=None):
+        if signal is None:
+            self.signal = False
+        else:
+            self.signal = signal
     
-    def __init__(self, p, n):
-        ModifiableObject.__init__(self, p._handle, p._path)
-        self.n = ModifiableObject(n._handle, n._path)
-        self.mask = (1 << len(self)) -1
+    def setimmediatevalue(self, value):
+        if isinstance(self.signal, ModifiableObject):
+            self.signal.setimmediatevalue(value)
+        else:
+            self.signal = value
 
-    def __setitem__(self, index, value):
-        ModifiableObject.__setitem__(self, index, value)
-        self.n[index].value = not(bool(value))       
-         
-    def _set_value(self, value, call_sim):
-        ModifiableObject._set_value(self, value, call_sim)
-        self.n._set_value(value ^ self.mask, call_sim)
-
-
-
-#         print(value)
-#         self.n.value = value ^ self.mask
-#     def setimmediatevalue(self, value):
-#         ModifiableObject.setimmediatevalue(self, value)
-#         self.n.setimmediatevalue(value ^ self.mask)
+    @property
+    def value(self):
+        if isinstance(self.signal, ModifiableObject):
+            return self.signal.value
+        else:
+            return self.signal
     
-
-# 
-#     @ModifiableObject.value.setter
-#     def value(self, value):
-#         self._set_value(value, cocotb.scheduler._schedule_write)
-#         self.n.value = value ^ self.mask
-
-    
-
-#     def __getitem__(self, key):
-#         return self._arr[key]
+    @value.setter
+    def value(self, value):
+        if isinstance(self.signal, ModifiableObject):
+            self.signal.value = value
+        else:
+            self.signal = value
