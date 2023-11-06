@@ -23,8 +23,9 @@ THE SOFTWARE.
 """
 
 
-from cocotb.triggers import FallingEdge, Timer
 from cocotb import start_soon
+from cocotb.triggers import FallingEdge, Timer
+from cocotb.queue import Queue
 
 from .version import __version__
 from .cocotbext_logger import CocoTBExtLogger
@@ -54,17 +55,10 @@ class DVIDriver(CocoTBExtLogger):
         self.data_p  = getattr(dut, f"{dvi_prefix}_data_p")
         self.data_n  = getattr(dut, f"{dvi_prefix}_data_n")
 
+        self.queue = Queue()
+        self.queue_delay = 0
+        
         self.tmds = [TMDS() , TMDS(), TMDS()]
-#         RGBDriver.__init__(
-#             self,
-#             self.clk_p, 
-#             dut.in_vsync, 
-#             dut.in_hsync,
-#             dut.in_data_valid,
-#             dut.in_data0_b,
-#             dut.in_data0_g,
-#             dut.in_data0_r,
-#         )
         self.sync = RGBDriver(
             self.clk_p, 
             image_file=self.image_file,
@@ -80,10 +74,32 @@ class DVIDriver(CocoTBExtLogger):
         self.data = DiffModifiableObject(self.data_p, self.data_n)
         self.data.setimmediatevalue(0)
         
-        #start_soon(DiffClock(self.clk_p, self.clk_n, self.clock_period, units="ns").start(start_high=False, wait_cycles=1263))        
         start_soon(DiffClock(self.clk_p, self.clk_n, self.clock_period, units="ns").start(start_high=False, wait_cycles=200))        
         start_soon(self._generate_traffic())
+        start_soon(self._test())
 
+    @property
+    def qcount(self):
+        return self.queue.qsize()
+
+    def empty(self):
+        return self.queue.empty()
+
+    def idle(self):
+        #return self.empty() and not self.active
+        return self.empty()
+
+    def clear(self):
+        while not self.queue.empty():
+            frame = self.queue.get_nowait()
+
+    async def _test(self):
+        await FallingEdge(self.clk_p)
+        while True:
+            if self.qcount > self.queue_delay:
+                self.data.value = self.queue.get_nowait()
+            await self.wait_10xbit()
+    
     async def wait_10xbit(self, amount=1.0):
         await Timer(int(amount*self.clock_period)/10, units='ns')
 
@@ -97,6 +113,8 @@ class DVIDriver(CocoTBExtLogger):
                 tx = 0
                 for j in range(3):
                     tx |= ((self.tmds[j].tmdsout >> i) & 0x1) << j
-                self.data.value = tx
+                #self.data.value = tx
+                #self.assign_data(tx)
+                self.queue.put_nowait(tx)
                 if i < 9:
                     await self.wait_10xbit()

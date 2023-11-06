@@ -1,5 +1,6 @@
 TOPLEVEL_LANG?=verilog
-TOPLEVEL?=dut
+DUT?=dut
+TOPLEVEL?=${DUT}
 MODULE?=test_dut
 
 default: sim
@@ -60,7 +61,10 @@ ifeq ($(TOPLEVEL_LANG),verilog)
 	else ifeq ($(SIM), ius)
 		COMPILE_ARGS += -disable_sem2009
 		COMPILE_ARGS += -sv
-		COMPILE_ARGS += -top ${TOPLEVEL}
+		COMPILE_ARGS += -top ${DUT}
+# 		COMPILE_ARGS += -vhdl_time_precision 1ps
+		#COMPILE_ARGS += -timescale $(COCOTB_HDL_TIMESCALE)/$(COCOTB_HDL_TIMEPRECISION)
+# 		COMPILE_ARGS += -timescale 1ns/1ps
 	else ifeq ($(SIM),xcelium)
 		COMPILE_ARGS += -disable_sem2009
 		COMPILE_ARGS += -sv

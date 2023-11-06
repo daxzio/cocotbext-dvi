@@ -9,22 +9,24 @@ COMPILE_LIBS?=${PROJ_HOME}/libs
 RTLFLO_PATH?=${PROJ_HOME}/rtlflo
 CDSLIB?=./cds_${SIM}.lib
 
+# DUT?=dut
 TOPLEVEL?=dut
-MODULE?=test_${TOPLEVEL}
+TEST?=${TOPLEVEL}_001
+MODULE?=test_${TEST}
 
 GENERICS = \
 	BMP_OPENED_NAME="/home/dkeeshan/projects/cocotbext-dvi/tests/gowin_tb/pic/img640.bmp" \
 
 
-IMPORT_SOURCES += \
-    ${PROJ_HOME}/tests/gowin_tb/driver/video_gen.v            \
-    ${PROJ_HOME}/tests/gowin_tb/driver/video_syntime_config.v \
-    ${PROJ_HOME}/tests/gowin_tb/driver/video_gen_syn.v        \
-    ${PROJ_HOME}/tests/gowin_tb/driver/video_gen_data.v       \
-    ${PROJ_HOME}/tests/gowin_tb/driver/driver.sv \
-
-GOWIN_SOURCES += \
-   ${PROJ_HOME}/tests/gowin_project/src/dvi_tx/dvi_tx_vo.v
+# IMPORT_SOURCES += \
+#     ${PROJ_HOME}/tests/gowin_tb/driver/video_gen.v            \
+#     ${PROJ_HOME}/tests/gowin_tb/driver/video_syntime_config.v \
+#     ${PROJ_HOME}/tests/gowin_tb/driver/video_gen_syn.v        \
+#     ${PROJ_HOME}/tests/gowin_tb/driver/video_gen_data.v       \
+#     ${PROJ_HOME}/tests/gowin_tb/driver/driver.sv \
+# 
+# GOWIN_SOURCES += \
+#    ${PROJ_HOME}/tests/gowin_project/src/dvi_tx/dvi_tx_vo.v
 
 # VHDL_LIB_ORDER += \
 #     UNISIM
@@ -50,13 +52,20 @@ VHDL_SOURCES += \
     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/TMDS_Clocking.vhd  \
     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/ResyncToBUFG.vhd   \
     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/EEPROM_8b.vhd      \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/dvi2rgb.vhd
+    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/dvi2rgb.vhd        \
+    ${PROJ_HOME}/tests/digilent-rgb2dvi/src/TMDS_Encoder.vhd   \
+    ${PROJ_HOME}/tests/digilent-rgb2dvi/src/OutputSERDES.vhd   \
+    ${PROJ_HOME}/tests/digilent-rgb2dvi/src/ClockGen.vhd       \
+    ${PROJ_HOME}/tests/digilent-rgb2dvi/src/rgb2dvi.vhd
+
+# VHDL_SOURCES += \
+#     ${PROJ_HOME}/tests/dvi/${TEST}.vhd
   
     
 #RTL_SOURCES += \
 
 DUT_SOURCES = \
-    ${PROJ_HOME}/tests/dvi/${TOPLEVEL}.sv
+    ${PROJ_HOME}/tests/dvi/${TEST}.sv
 
 VERILOG_DESIGN += ${XILINX_IP_SOURCES} ${RTL_SOURCES} ${SIM_SOURCES} ${IMPORT_SOURCES}
 

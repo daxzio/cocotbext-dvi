@@ -41,11 +41,11 @@ class DVIHsync():
         self.end   = None
         self.expected_length = expected_length
     
-    def end_time(self, vsync):
+    def end_time(self, vsync, test=True):
         self.end   = get_sim_time('step')
-        if not self.expected_length is None:
+        if not self.expected_length is None and test:
             if not self.expected_length == self.length:
-                raise Exception
+                raise Exception(f"Hsync length changes {self.expected_length} != {self.length}")
     
     @property
     def length(self):
@@ -77,7 +77,7 @@ class DVIFrame():
         self.frame_end = None
         
     def report_frame(self):
-        print(len(self.hsync))
+        print(len(self.hsync), self.vsync.length)
 
 
 class DVISink(CocoTBExtLogger):
@@ -108,6 +108,7 @@ class DVISink(CocoTBExtLogger):
         self.time_delta = 0
         
         self.tmds = [TMDS() , TMDS(), TMDS()]
+        self.tmdsin = [0, 0, 0]
         self.frames = []
         
         self._restart()
@@ -119,7 +120,6 @@ class DVISink(CocoTBExtLogger):
         start_soon(self._detect_clk())
         start_soon(self._detect_data())
         start_soon(self._parse_data())
-#         start_soon(self.xxx())
 
     async def _detect_clk(self):
         await RisingEdge(self.clk)
@@ -143,16 +143,14 @@ class DVISink(CocoTBExtLogger):
         while True:
             await FallingEdge(self.clk)
             if self.start:
-                self.tmdsin = [0, 0, 0]
                 await self.wait_bit(0.5)
+                self.tmdsin = [0, 0, 0]
                 for i in range(10):
-                    self.tmdsin[0] |= int(self.data[0].value) << i
-                    self.tmdsin[1] |= int(self.data[1].value) << i
-                    self.tmdsin[2] |= int(self.data[2].value) << i
+                    for j, _  in enumerate(self.tmdsin):
+                        self.tmdsin[j] |= int(self.data[j].value) << i
                     if i < 9:
                         await self.wait_bit()
                 self.data_ready = True
-                #self.log.info(f"0x{self.tmdsin[2]:02x} 0x{self.tmdsin[1]:02x} 0x{self.tmdsin[0]:02x}")
 
     async def _parse_data(self):
         frame = [[],[],[]]
@@ -182,14 +180,10 @@ class DVISink(CocoTBExtLogger):
                     self.frames.append(self.f)
                     self.vsync_cnt += 1
                 self.first_vsync = True
-                #self.log.debug(f"Positive vsync detected")
-                #self.hsync_cnt = 0
                 self.f = DVIFrame()
-                #self.f.vsync_start = get_sim_time('step')
                 self.f.vsync.start_time()
             
             if self.vsync_last and not self.vsync and self.first_vsync:
-                #self.log.debug(f"Negative vsync detected")
                 self.f.vsync.end_time()
             
             if not self.hsync_last and self.hsync and self.first_vsync:
@@ -198,14 +192,17 @@ class DVISink(CocoTBExtLogger):
 
             if self.hsync_last and not self.hsync and self.first_vsync:
                 if hasattr(self, 'h'):
-                    self.h.end_time(self.vsync)
+                    # Only test from the second hsync on, as we may be arrived mid sequence
+                    test = True
+                    if len(self.f.hsync) <= 1:
+                        test = False
+                    self.h.end_time(self.vsync, test)
                     self.f.hsync.append(self.h)
                     hsync_expected_length = self.h.length
                     del self.h
 
             
     async def frame_finished(self):
-        #await RisingEdge(self.frame_complete)
         while True:
             await RisingEdge(self.clk)
             if self.frame_complete:
@@ -213,5 +210,5 @@ class DVISink(CocoTBExtLogger):
                 break
     
     def report_frame(self):
-        self.frames[0].report_frame()
+        self.frames[-1].report_frame()
             

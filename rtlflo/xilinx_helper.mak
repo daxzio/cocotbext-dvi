@@ -42,10 +42,11 @@ ifneq (${XILINX_BASE},)
 			${XILINX_BASE}/verilog/src/glbl.v
 	    VERILOG_SOURCES += ${UNISIMS} 
 	else ifeq ($(SIM),ius)
-# 		COMPILE_ARGS += -y unisims_ver
-		COMPILE_ARGS += -top glbl
-		VERILOG_SOURCES += \
-			${XILINX_BASE}/verilog/src/glbl.v
+        ifneq (${VERILOG_SOURCES},)
+		    COMPILE_ARGS += -top glbl
+		    VERILOG_SOURCES += \
+			    ${XILINX_BASE}/verilog/src/glbl.v
+		endif
 		COMPILE_ARGS += -cdslib ${CDSLIB}
     else ifeq ($(SIM),verilator)
 	    COMPILE_ARGS += --top-module glbl
