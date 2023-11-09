@@ -82,16 +82,16 @@ class DVIDriver(CocoTBExtLogger):
     def qcount(self):
         return self.queue.qsize()
 
-    def empty(self):
-        return self.queue.empty()
-
-    def idle(self):
-        #return self.empty() and not self.active
-        return self.empty()
-
-    def clear(self):
-        while not self.queue.empty():
-            frame = self.queue.get_nowait()
+#     def empty(self):
+#         return self.queue.empty()
+# 
+#     def idle(self):
+#         #return self.empty() and not self.active
+#         return self.empty()
+# 
+#     def clear(self):
+#         while not self.queue.empty():
+#             frame = self.queue.get_nowait()
 
     async def _test(self):
         await FallingEdge(self.clk_p)
@@ -113,8 +113,9 @@ class DVIDriver(CocoTBExtLogger):
                 tx = 0
                 for j in range(3):
                     tx |= ((self.tmds[j].tmdsout >> i) & 0x1) << j
-                #self.data.value = tx
-                #self.assign_data(tx)
-                self.queue.put_nowait(tx)
+                if 0 == self.queue_delay:
+                    self.data.value = tx
+                else:
+                    self.queue.put_nowait(tx)
                 if i < 9:
                     await self.wait_10xbit()
