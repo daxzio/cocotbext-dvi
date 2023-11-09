@@ -34,8 +34,8 @@ class DiffClock(Clock):
     Instances of this class should call its :meth:`start` method
     and pass the coroutine object to one of the functions in :ref:`task-management`.
 
-    This will create a clocking task that drives the signal at the
-    desired period/frequency.
+    This will create a clocking task that drives the two differential 
+    signals at the desired period/frequency.
 
     Example:
 
@@ -45,7 +45,8 @@ class DiffClock(Clock):
         await cocotb.start(c.start())
 
     Args:
-        signal: The clock pin/signal to be driven.
+        signal_p: The positive clock pin/signal to be driven.
+        signal_n: The negative clock pin/signal to be driven.
         period (int): The clock period. Must convert to an even number of
             timesteps.
         units (str, optional): One of
@@ -63,7 +64,7 @@ class DiffClock(Clock):
         self.signal_n = signal_n
 
 
-    async def start(self, cycles=None, start_high=True,wait_cycles=None):
+    async def start(self, cycles=None, start_high=True, wait_cycles=None):
         r"""Clocking coroutine.  Start driving your clock by :func:`cocotb.start`\ ing a
         call to this.
 
@@ -74,9 +75,11 @@ class DiffClock(Clock):
             start_high (bool, optional): Whether to start the clock with a ``1``
                 for the first half of the period.
                 Default is ``True``.
+            wait_cycles (int, optional): Delay the start of the clock by an integer 
+                count of cycles.
+                Default is ``None``.
 
         """
-        await Timer(8, units='ns')
         if not wait_cycles is None:
             self.signal.value   = start_high
             self.signal_n.value = not start_high
