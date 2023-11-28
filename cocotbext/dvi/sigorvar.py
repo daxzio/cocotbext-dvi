@@ -23,13 +23,14 @@ THE SOFTWARE.
 """
 from cocotb.handle import ModifiableObject
 
+
 class SignalOrVariable:
     def __init__(self, signal=None):
         if signal is None:
             self.signal = False
         else:
             self.signal = signal
-    
+
     def setimmediatevalue(self, value):
         if isinstance(self.signal, ModifiableObject):
             self.signal.setimmediatevalue(value)
@@ -42,7 +43,7 @@ class SignalOrVariable:
             return self.signal.value
         else:
             return self.signal
-    
+
     @value.setter
     def value(self, value):
         if isinstance(self.signal, ModifiableObject):

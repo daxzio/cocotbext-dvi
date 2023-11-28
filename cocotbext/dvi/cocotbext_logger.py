@@ -23,6 +23,7 @@ THE SOFTWARE.
 """
 import logging
 
+
 class CocoTBExtLogger:
     def __init__(self, name="default", enable=True):
         self.name = name
@@ -32,6 +33,6 @@ class CocoTBExtLogger:
 
     def enable_logging(self):
         self.log.setLevel(logging.DEBUG)
-    
+
     def disable_logging(self):
         self.log.setLevel(logging.WARNING)

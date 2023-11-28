@@ -27,14 +27,15 @@ from numbers import Real
 from typing import Union
 from cocotb.triggers import Timer
 from cocotb.clock import Clock
-  
+
+
 class DiffClock(Clock):
     r"""Simple 50:50 duty cycle differential clock driver.
 
     Instances of this class should call its :meth:`start` method
     and pass the coroutine object to one of the functions in :ref:`task-management`.
 
-    This will create a clocking task that drives the two differential 
+    This will create a clocking task that drives the two differential
     signals at the desired period/frequency.
 
     Example:
@@ -58,11 +59,14 @@ class DiffClock(Clock):
     """
 
     def __init__(
-        self, signal_p , signal_n, period: Union[float, Real, Decimal], units: str = "step"
+        self,
+        signal_p,
+        signal_n,
+        period: Union[float, Real, Decimal],
+        units: str = "step",
     ):
         Clock.__init__(self, signal_p, period, units)
         self.signal_n = signal_n
-
 
     async def start(self, cycles=None, start_high=True, wait_cycles=None):
         r"""Clocking coroutine.  Start driving your clock by :func:`cocotb.start`\ ing a
@@ -75,17 +79,17 @@ class DiffClock(Clock):
             start_high (bool, optional): Whether to start the clock with a ``1``
                 for the first half of the period.
                 Default is ``True``.
-            wait_cycles (int, optional): Delay the start of the clock by an integer 
+            wait_cycles (int, optional): Delay the start of the clock by an integer
                 count of cycles.
                 Default is ``None``.
 
         """
         if not wait_cycles is None:
-            self.signal.value   = start_high
+            self.signal.value = start_high
             self.signal_n.value = not start_high
-            t = Timer(self.period*wait_cycles)
+            t = Timer(self.period * wait_cycles)
             await t
-        
+
         t = Timer(self.half_period)
         if cycles is None:
             it = itertools.count()
@@ -93,9 +97,9 @@ class DiffClock(Clock):
             it = range(cycles)
 
         for _ in it:
-            self.signal.value   = start_high
+            self.signal.value = start_high
             self.signal_n.value = not start_high
             await t
-            self.signal.value   = not start_high
+            self.signal.value = not start_high
             self.signal_n.value = start_high
             await t
