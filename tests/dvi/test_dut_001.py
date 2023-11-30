@@ -3,105 +3,202 @@ from cocotb import start_soon
 from cocotb import test
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
-# from interfaces.axi_driver import AxiStreamDriver
-# from random import randint
 from cocotbext.dvi import DVISink, DVIDriver
-
-class clkreset:
-    def __init__(self, dut, clk_freq=17, reset_sense=1):
-        self.clk = dut.clk
-        self.clk_freq = clk_freq
-#         self.core_clk = dut.s_aclk
-        self.reset = dut.reset
-        self.reset_sense = reset_sense
-
-    async def wait_clkn(self, length=1):
-        for i in range(int(length)):
-            await RisingEdge(self.clk)
-
-    async def start_test(self, units="ns"):
-        self.clock_period = 1000/self.clk_freq
-        #print(f"Setting clock to {self.clock_period} ns")
-        start_soon(Clock(self.clk, self.clock_period, units=units).start())        
-        
- 
-        self.reset.setimmediatevalue(self.reset_sense)
-        await self.wait_clkn(20)
-        self.reset.value = (~self.reset_sense)  & 0x1
-        await self.wait_clkn(20)
-
-    async def end_test(self, length=10):
-        await self.wait_clkn(length)
+from cocotbext.dvi import RGBDriver
+from cocotbext.dvi import RGBSink
+from cocotbext.daxzio import ClkReset
 
 class testbench:
-    def __init__(self, dut, reset_sense=1):
+    def __init__(self, dut, reset_sense=0, image_file=None):
         self.clk_freq = 25
+        self.image_file = image_file
         
-        self.clk_200 = dut.clk_200
-        start_soon(Clock(self.clk_200 , 5, units='ns').start())        
+#         self.clk_200 = dut.clk_200
+#         start_soon(Clock(self.clk_200 , 5, units='ns').start())        
         
-        self.cr = clkreset(dut, clk_freq=self.clk_freq, reset_sense=0)
+        self.cr = ClkReset(dut, clk_freq=self.clk_freq, reset_sense=reset_sense)
         
-        image_file = "/home/dkeeshan/projects/cocotbext-dvi/tests/gowin_tb/pic/img160.bmp"
-        self.dvi_in = DVIDriver(dut, image_file)
-        self.dvi_in.queue_delay = 1
-        self.dvi_out = DVISink(dut, image_file)
-        #self.dvi.disable_logging()
+#         self.dvi_in = DVIDriver(dut, image_file)
+#         self.dvi_out = DVISink(dut, image_file)
+        
+#         self.rgb_in = RGBDriver(
+#             self.cr.clk,
+#             image_file=image_file,
+#             vsync=dut.rgb_in_vsync,
+#             hsync=dut.rgb_in_hsync,
+#             data_valid=dut.rgb_in_data_valid,
+#             data0=dut.rgb_in_data_r,
+#             data1=dut.rgb_in_data_g,
+#             data2=dut.rgb_in_data_b,
+#             logging_enabled=True,
+#         )
+#         self.rgb_out = RGBSink(
+#             self.cr.clk,
+#             image_file=image_file,
+#             vsync=dut.rgb_out_vsync,
+#             hsync=dut.rgb_out_hsync,
+#             de=dut.rgb_out_de,
+#             data0=dut.rgb_out_data_r,
+#             data1=dut.rgb_out_data_g,
+#             data2=dut.rgb_out_data_b,
+#             logging_enabled=True,
+#         )
+       
 
-        
-
+# @test()
+# async def test_dut_noimage(dut):
+#     
+#     tb = testbench(dut, image_file="/home/dkeeshan/projects/cocotbext-dvi/tests/images/80x60.bmp")
+#     #self.dvi_out.
+#  
+#     await tb.cr.start_test()
+# 
+#     try:
+#         await tb.dvi_out.frame_finished()
+#         await tb.cr.wait_clkn(1000)
+#     except Exception:
+#         pass
+#           
+#     await tb.cr.end_test()
 
 @test()
-async def test_dut_simple(dut):
-    
+async def test_dut_rgb_only(dut):
+    image_file="../images/80x60.png"
     tb = testbench(dut)
+    tb.rgb_in = RGBDriver(
+        tb.cr.clk,
+        image_file=image_file,
+        vsync=dut.rgb_in_vsync,
+        hsync=dut.rgb_in_hsync,
+        de=dut.rgb_in_de,
+        data0=dut.rgb_in_data_r,
+        data1=dut.rgb_in_data_g,
+        data2=dut.rgb_in_data_b,
+        logging_enabled=True,
+    )
+    tb.rgb_out = RGBSink(
+        tb.cr.clk,
+        image_file=image_file,
+        vsync=dut.rgb_out_vsync,
+        hsync=dut.rgb_out_hsync,
+        de=dut.rgb_out_de,
+        data0=dut.rgb_out_data_r,
+        data1=dut.rgb_out_data_g,
+        data2=dut.rgb_out_data_b,
+        logging_enabled=False,
+    )
  
     await tb.cr.start_test()
 
-#     print(tb.dvi_in.data.value)
-#     tb.dvi_in.data.value = 2
-#     await tb.cr.wait_clkn(10)
-#     print(tb.dvi_in.data.value)
-# #     tb.dvi_in.data[0] = 1
-# #     tb.dvi_in.data[1] = 0
-# #     tb.dvi_in.data[2] = 1
-# #     print(type(tb.dvi_in.data[0].value).__name__)
-# #     tb.dvi_in.data[0].value = 1
-# #     tb.dvi_in.data[1].value = 0
-# #     tb.dvi_in.data[2].value = 1
-#     await tb.cr.wait_clkn(10)
-#     print(tb.dvi_in.data.value)
-#     tb.dvi_in.data.value = 7
-#     await tb.cr.wait_clkn(10)
-#     print(tb.dvi_in.data.value)
-#     if 7 == tb.dvi_in.data.value:
-#         print(True)
-#     else:
-#         print(False)
-#     if 6 == tb.dvi_in.data.value:
-#         print(True)
-#     else:
-#         print(False)
-    
-#     
-#     
-#     val = tb.genLine()    
-#     await tb.axi.write(val, line_length)
-#     
-#     await tb.cr.wait_clkn(int(line_length/2))
-#     val = tb.genLine()    
-#     await tb.axi.write(val, line_length)
-    await tb.dvi_out.frame_finished()
-    tb.dvi_out.report_frame()
+    await tb.rgb_out.frame_finished()
 
-    await tb.dvi_out.frame_finished()
-    tb.dvi_out.report_frame()
-    
-    await tb.dvi_out.frame_finished()
-    tb.dvi_out.report_frame()
-    
-    #await tb.cr.wait_clkn(110000)
-    #await tb.cr.wait_clkn(5000)
     await tb.cr.wait_clkn(1000)
           
     await tb.cr.end_test()
+
+@test()
+async def test_dut_rgb_only2(dut):
+    image_file="../images/80x60.png"
+    tb = testbench(dut)
+    tb.rgb_in = RGBDriver(
+        tb.cr.clk,
+        image_file=image_file,
+        vsync=dut.rgb_in_vsync,
+        hsync=dut.rgb_in_hsync,
+        de=dut.rgb_in_de,
+        data0=dut.rgb_in_data_r,
+        data1=dut.rgb_in_data_g,
+        data2=dut.rgb_in_data_b,
+        logging_enabled=True,
+    )
+    tb.rgb_out = RGBSink(
+        tb.cr.clk,
+        image_file=image_file,
+        vsync=dut.rgb_out_vsync,
+        hsync=dut.rgb_out_hsync,
+        de=dut.rgb_out_de,
+        data0=dut.rgb_out_data_r,
+        data1=dut.rgb_out_data_g,
+        data2=dut.rgb_out_data_b,
+        logging_enabled=False,
+    )
+ 
+    await tb.cr.start_test()
+
+    await tb.rgb_out.frame_finished()
+    await tb.rgb_out.frame_finished()
+
+    await tb.cr.wait_clkn(1000)
+          
+    await tb.cr.end_test()
+
+@test()
+async def test_dut_rgb_160(dut):
+    image_file="../images/160x120.png"
+    tb = testbench(dut)
+    tb.rgb_in = RGBDriver(
+        tb.cr.clk,
+        image_file=image_file,
+        vsync=dut.rgb_in_vsync,
+        hsync=dut.rgb_in_hsync,
+        de=dut.rgb_in_de,
+        data0=dut.rgb_in_data_r,
+        data1=dut.rgb_in_data_g,
+        data2=dut.rgb_in_data_b,
+        logging_enabled=True,
+    )
+    tb.rgb_out = RGBSink(
+        tb.cr.clk,
+        image_file=image_file,
+        vsync=dut.rgb_out_vsync,
+        hsync=dut.rgb_out_hsync,
+        de=dut.rgb_out_de,
+        data0=dut.rgb_out_data_r,
+        data1=dut.rgb_out_data_g,
+        data2=dut.rgb_out_data_b,
+        logging_enabled=False,
+    )
+ 
+    await tb.cr.start_test()
+
+    await tb.rgb_out.frame_finished()
+
+    await tb.cr.wait_clkn(1000)
+          
+    await tb.cr.end_test()
+
+@test()
+async def test_dut_dvi(dut):
+    image_file="../images/80x60.png"
+    tb = testbench(dut)
+    tb.dvi_in = DVIDriver(dut, image_file)
+    tb.dvi_out = DVISink(dut, image_file)
+ 
+    await tb.cr.start_test()
+
+    await tb.dvi_out.frame_finished()
+
+    await tb.cr.wait_clkn(1000)
+          
+    await tb.cr.end_test()
+
+
+
+
+# @test()
+# async def test_dut_160(dut):
+#     
+#     tb = testbench(dut, image_file="/home/dkeeshan/projects/cocotbext-dvi/tests/images/160x120.bmp")
+#  
+#     await tb.cr.start_test()
+# 
+# 
+#     await tb.dvi_out.frame_finished()
+#     tb.dvi_out.report_frame()
+# 
+# #     await tb.dvi_out.frame_finished()
+# #     tb.dvi_out.report_frame()
+#     
+#     await tb.cr.wait_clkn(1000)
+#           
+#     await tb.cr.end_test()

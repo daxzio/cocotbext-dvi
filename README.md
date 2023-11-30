@@ -1,20 +1,12 @@
-# DVI interface modules for Cocotb
-
-[![Build Status](https://github.com/daxzio/cocotbext-dvi/workflows/Regression%20Tests/badge.svg?branch=master)](https://github.com/daxzio/cocotbext-dvi/actions/)
-[![codecov](https://codecov.io/gh/daxzio/cocotbext-dvi/branch/master/graph/badge.svg)](https://codecov.io/gh/daxzio/cocotbext-dvi)
-[![PyPI version](https://badge.fury.io/py/cocotbext-i2c.svg)](https://pypi.org/project/cocotbext-i2c)
+# DVI and RGB interface modules for Cocotb
 
 GitHub repository: https://github.com/daxzio/cocotbext-dvi
 
 ## Introduction
 
-DVI simulation models for [cocotb](https://github.com/cocotb/cocotb).
+DVI and RGB simulation models for [cocotb](https://github.com/cocotb/cocotb).
 
 ## Installation
-
-Installation from pip (release version, stable):
-
-    $ pip install cocotbext-dvi
 
 Installation from git (latest development version, potentially unstable):
 
@@ -27,5 +19,15 @@ Installation for active development:
 
 ## Documentation and usage examples
 
-See the `tests` directory and [verilog-i2c](https://github.com/alexforencich/verilog-i2c) for complete testbenches using these modules.
+See the `tests` directory and [verilog-i2c](https://github.com/daxzio/verilog-i2c) for complete testbenches using these modules.
 
+        image_file = "/home/dkeeshan/projects/cocotbext-dvi/tests/images/160x120.bmp"
+        self.dvi_in = DVIDriver(dut, image_file)
+    def __init__(self, dut, image_file=None, dvi_prefix="tmds_in", clk_freq=25.0):
+
+
+        image_file = "/home/dkeeshan/projects/cocotbext-dvi/tests/images/160x120.bmp"
+        self.dvi_out = DVISink(dut, image_file)
+    def __init__(self, dut, image_file=None, dvi_prefix="tmds_out"):
+
+    def __init__(self, clk, image_file=None, vsync=None, hsync=None, data_valid=None, data0=None, data1=None, data2=None, logging_enabled=True):

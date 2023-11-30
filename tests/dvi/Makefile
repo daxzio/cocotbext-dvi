@@ -1,4 +1,4 @@
-SIM?=ius
+SIM?=icarus
 TOPLEVEL_LANG=verilog
 #XILINX_BASE=${HOME}/projects/XilinxUnisimLibrary
 #XILINX_BASE=${XILINX_VIVADO}/data
@@ -13,9 +13,6 @@ CDSLIB?=./cds_${SIM}.lib
 TOPLEVEL?=dut
 TEST?=${TOPLEVEL}_001
 MODULE?=test_${TEST}
-
-GENERICS = \
-	BMP_OPENED_NAME="/home/dkeeshan/projects/cocotbext-dvi/tests/gowin_tb/pic/img640.bmp" \
 
 
 # IMPORT_SOURCES += \
@@ -38,25 +35,25 @@ GENERICS = \
 # 	/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/primitive/IDELAYE2.vhd \
 # 	/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/secureip/ISERDESE2.vhd \
 # 
-VHDL_SOURCES += \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/DVI_Constants.vhd  \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/SyncAsync.vhd      \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/SyncAsyncReset.vhd \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/SyncBase.vhd       \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/InputSERDES.vhd    \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/GlitchFilter.vhd   \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/TWI_SlaveCtl.vhd   \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/PhaseAlign.vhd     \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/ChannelBond.vhd    \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/TMDS_Decoder.vhd   \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/TMDS_Clocking.vhd  \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/ResyncToBUFG.vhd   \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/EEPROM_8b.vhd      \
-    ${PROJ_HOME}/tests/digilent-dvi2rgb/src/dvi2rgb.vhd        \
-    ${PROJ_HOME}/tests/digilent-rgb2dvi/src/TMDS_Encoder.vhd   \
-    ${PROJ_HOME}/tests/digilent-rgb2dvi/src/OutputSERDES.vhd   \
-    ${PROJ_HOME}/tests/digilent-rgb2dvi/src/ClockGen.vhd       \
-    ${PROJ_HOME}/tests/digilent-rgb2dvi/src/rgb2dvi.vhd
+# VHDL_SOURCES += \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/DVI_Constants.vhd  \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/SyncAsync.vhd      \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/SyncAsyncReset.vhd \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/SyncBase.vhd       \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/InputSERDES.vhd    \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/GlitchFilter.vhd   \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/TWI_SlaveCtl.vhd   \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/PhaseAlign.vhd     \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/ChannelBond.vhd    \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/TMDS_Decoder.vhd   \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/TMDS_Clocking.vhd  \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/ResyncToBUFG.vhd   \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/EEPROM_8b.vhd      \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/dvi2rgb.vhd        \
+#     ${PROJ_HOME}/tests/digilent-rgb2dvi/src/TMDS_Encoder.vhd   \
+#     ${PROJ_HOME}/tests/digilent-rgb2dvi/src/OutputSERDES.vhd   \
+#     ${PROJ_HOME}/tests/digilent-rgb2dvi/src/ClockGen.vhd       \
+#     ${PROJ_HOME}/tests/digilent-rgb2dvi/src/rgb2dvi.vhd
 
 # VHDL_SOURCES += \
 #     ${PROJ_HOME}/tests/dvi/${TEST}.vhd
@@ -65,6 +62,7 @@ VHDL_SOURCES += \
 #RTL_SOURCES += \
 
 DUT_SOURCES = \
+    ${PROJ_HOME}/tests/dvi/vcd_dump.sv \
     ${PROJ_HOME}/tests/dvi/${TEST}.sv
 
 VERILOG_DESIGN += ${XILINX_IP_SOURCES} ${RTL_SOURCES} ${SIM_SOURCES} ${IMPORT_SOURCES}
@@ -73,8 +71,4 @@ VERILOG_SOURCES = \
     ${VERILOG_DESIGN} \
     ${DUT_SOURCES}
 
-include ${WORK_BASE}/rtlflo/xilinx_helper.mak
-include ${WORK_BASE}/rtlflo/gowin_helper.mak
 include ${WORK_BASE}/rtlflo/cocotb_helper.mak
-include ${WORK_BASE}/rtlflo/verible_helper.mak
-include ${WORK_BASE}/rtlflo/git_helper.mak

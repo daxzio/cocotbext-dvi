@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Dave Keeshan
+Copyright (c) 2023 Daxzio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,3 +26,5 @@ from .version import __version__
 
 from .dvi_driver import DVIDriver
 from .dvi_sink import DVISink
+from .rgb_driver import RGBDriver
+from .rgb_sink import RGBSink

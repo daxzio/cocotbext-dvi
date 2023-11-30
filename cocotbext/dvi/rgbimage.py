@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Dave Keeshan
+Copyright (c) 2023 Daxzio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

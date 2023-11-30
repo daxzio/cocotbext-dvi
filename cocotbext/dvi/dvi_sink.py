@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Dave Keeshan
+Copyright (c) 2023 Daxzio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,87 +31,41 @@ from .version import __version__
 from .cocotbext_logger import CocoTBExtLogger
 from .tmds import TMDS
 from .rgbimage import RGBImage
-
-
-class DVIHsync:
-    def __init__(self, vsync=False, expected_length=None):
-        self.vsync = vsync
-        self.start = get_sim_time("step")
-        self.end = None
-        self.expected_length = expected_length
-
-    def end_time(self, vsync, test=True):
-        self.end = get_sim_time("step")
-        if not self.expected_length is None and test:
-            if not self.expected_length == self.length:
-                raise Exception(
-                    f"Hsync length changes {self.expected_length} != {self.length}"
-                )
-
-    @property
-    def length(self):
-        return self.end - self.start
-
-
-class DVIVsync:
-    def __init__(self, expected_length=None):
-        self.start = None
-        self.end = None
-        self.expected_length = expected_length
-
-    def start_time(self):
-        self.start = get_sim_time("step")
-
-    def end_time(self):
-        self.end = get_sim_time("step")
-        if not self.expected_length is None:
-            if not self.expected_length == self.length:
-                raise Exception
-
-    @property
-    def length(self):
-        return self.end - self.start
-
-
-class DVIFrame:
-    def __init__(self):
-        self.hsync = []
-        self.vsync = DVIVsync()
-        self.frame_end = None
-
-    def report_frame(self):
-        print(len(self.hsync), self.vsync.length)
+from .rgb_sink import RGBSink
 
 
 class DVISink(CocoTBExtLogger):
     def __init__(self, dut, image_file=None, dvi_prefix="tmds_out"):
-        super().__init__(type(self).__name__)
+        CocoTBExtLogger.__init__(self, type(self).__name__)
 
         self.image_file = image_file
         self.img = RGBImage(self.image_file)
 
         self.log.info("DVI Sink")
         self.log.info(f"cocotbext-dvi version {__version__}")
-        self.log.info("Copyright (c) 2023 Dave Keeshan")
+        self.log.info("Copyright (c) 2023 Daxzio")
         self.log.info("https://github.com/daxzio/cocotbext-dvi")
 
         self.clk = getattr(dut, f"{dvi_prefix}_clk_p")
         self.data = getattr(dut, f"{dvi_prefix}_data_p")
 
-        self.hsync = False
-        self.vsync = True
-        self.first_vsync = False
-        self.frame_complete = False
-        self.hsync_cnt = 0
-        self.vsync_cnt = 0
+        self.rgb_out = RGBSink(
+            self.clk,
+            image_file=self.image_file,
+            #             vsync=dut.vsync,
+            #             hsync=dut.hsync,
+            #             de=dut.de,
+            #             data0=dut.data_r,
+            #             data1=dut.data_g,
+            #             data2=dut.data_b,
+            logging_enabled=False,
+        )
 
         self.start = False
-        self.data_ready = False
         self.time_delta = 0
 
         self.tmds = [TMDS(), TMDS(), TMDS()]
         self.tmdsin = [0, 0, 0]
-        self.frames = []
 
         self._restart()
 
@@ -142,6 +96,9 @@ class DVISink(CocoTBExtLogger):
                 raise Exception("Change in clock frequency detected")
 
     async def _detect_data(self):
+        self.rgb_out.hsync.value = False
+        self.rgb_out.vsync.value = False
+        self.rgb_out.de.value = False
         while True:
             await FallingEdge(self.clk)
             if self.start:
@@ -152,63 +109,26 @@ class DVISink(CocoTBExtLogger):
                         self.tmdsin[j] |= int(self.data[j].value) << i
                     if i < 9:
                         await self.wait_bit()
-                self.data_ready = True
 
-    async def _parse_data(self):
-        frame = [[], [], []]
-        hsync_expected_length = None
-        while True:
-            self.hsync_last = self.hsync
-            self.vsync_last = self.vsync
-            await FallingEdge(self.clk)
-            if self.data_ready:
                 for i in range(len(self.tmds)):
                     self.tmds[i].decode(self.tmdsin[i])
                     if self.tmds[i].de:
-                        frame[i].append(self.tmds[i].dataout)
-
+                        self.rgb_out.data[i].value = self.tmds[i].dataout
+                self.rgb_out.de.value = self.tmds[0].de
                 if not self.tmds[0].de:
-                    self.hsync = self.tmds[0].hsync
-                    self.vsync = self.tmds[0].vsync
+                    self.rgb_out.hsync.value = self.tmds[0].hsync
+                    self.rgb_out.vsync.value = self.tmds[0].vsync
 
-            self.frame_complete = False
-            if not self.vsync_last and self.vsync:
-                if not self.first_vsync:
-                    self.vsync_cnt = 0
-                else:
-                    self.log.info(f"Frame {self.vsync_cnt} Completed")
-                    self.frame_complete = True
-                    self.f.frame_end = get_sim_time("step")
-                    self.frames.append(self.f)
-                    self.vsync_cnt += 1
-                self.first_vsync = True
-                self.f = DVIFrame()
-                self.f.vsync.start_time()
-
-            if self.vsync_last and not self.vsync and self.first_vsync:
-                self.f.vsync.end_time()
-
-            if not self.hsync_last and self.hsync and self.first_vsync:
-                self.h = DVIHsync(self.vsync)
-                self.h.expected_length = hsync_expected_length
-
-            if self.hsync_last and not self.hsync and self.first_vsync:
-                if hasattr(self, "h"):
-                    # Only test from the second hsync on, as we may be arrived mid sequence
-                    test = True
-                    if len(self.f.hsync) <= 1:
-                        test = False
-                    self.h.end_time(self.vsync, test)
-                    self.f.hsync.append(self.h)
-                    hsync_expected_length = self.h.length
-                    del self.h
+    async def _parse_data(self):
+        self.frame_complete = False
+        self.vsync_last = False
+        while True:
+            await FallingEdge(self.clk)
+            self.frame_complete = not (self.rgb_out.vsync) and self.vsync_last
+            self.vsync_last = self.rgb_out.vsync
 
     async def frame_finished(self):
-        while True:
-            await RisingEdge(self.clk)
-            if self.frame_complete:
-                self.log.debug(f"Frame finished detected")
-                break
+        await self.rgb_out.frame_finished()
 
     def report_frame(self):
-        self.frames[-1].report_frame()
+        self.rgb_out.report_frame()

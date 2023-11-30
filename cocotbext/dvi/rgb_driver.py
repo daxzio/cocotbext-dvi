@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Dave Keeshan
+Copyright (c) 2023 Daxzio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ class RGBDriver(CocoTBExtLogger):
         image_file=None,
         vsync=None,
         hsync=None,
-        data_valid=None,
+        de=None,
         data0=None,
         data1=None,
         data2=None,
@@ -46,7 +46,7 @@ class RGBDriver(CocoTBExtLogger):
         CocoTBExtLogger.__init__(self, type(self).__name__, logging_enabled)
         self.log.info("RGB Driver")
         self.log.info(f"cocotbext-dvi version {__version__}")
-        self.log.info("Copyright (c) 2023 Dave Keeshan")
+        self.log.info("Copyright (c) 2023 Daxzio")
         self.log.info("https://github.com/daxzio/cocotbext-dvi")
         self.clk = clk
 
@@ -55,7 +55,7 @@ class RGBDriver(CocoTBExtLogger):
 
         self.vsync = SignalOrVariable(vsync)
         self.hsync = SignalOrVariable(hsync)
-        self.de = SignalOrVariable(data_valid)
+        self.de = SignalOrVariable(de)
         self.data = [
             SignalOrVariable(data0),
             SignalOrVariable(data1),
@@ -80,21 +80,24 @@ class RGBDriver(CocoTBExtLogger):
     async def _detect_clk(self):
         row_cnt = 0
         col_cnt = 0
-        for i in range(3):
-            await RisingEdge(self.clk)
-        for i in range(16):
-            await RisingEdge(self.clk)
         while True:
             await RisingEdge(self.clk)
             self.data[0].value = 0
             self.data[1].value = 0
             self.data[2].value = 0
-            if self.hsync_cnt < 36 or self.hsync_cnt >= (36 + self.img.height):
+            #             hsync_offset = 36
+            #             hsync_offset = 20
+            hsync_offset = int((self.img.width - self.img.height) / 2)
+            if self.hsync_cnt < hsync_offset or self.hsync_cnt >= (
+                hsync_offset + self.img.height
+            ):
                 col_cnt = 0
                 self.de.value = False
-            elif (self.vsync_cnt % (2 * self.img.width)) < 104:
+            elif (self.vsync_cnt % (2 * self.img.width)) < self.img.height:
                 self.de.value = False
-            elif (self.vsync_cnt % (2 * self.img.width)) >= (104 + self.img.width):
+            elif (self.vsync_cnt % (2 * self.img.width)) >= (
+                self.img.height + self.img.width
+            ):
                 self.de.value = False
             else:
                 self.de.value = True
@@ -114,7 +117,7 @@ class RGBDriver(CocoTBExtLogger):
             else:
                 self.hsync.value = True
 
-            if self.vsync_cnt < (12 * self.img.width):
+            if self.vsync_cnt < (int(self.img.height / 10) * self.img.width):
                 self.vsync.value = False
             else:
                 self.vsync.value = True

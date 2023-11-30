@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Dave Keeshan
+Copyright (c) 2023 Daxzio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ class DVIDriver(CocoTBExtLogger):
 
         self.log.info("DVI Driver")
         self.log.info(f"cocotbext-dvi version {__version__}")
-        self.log.info("Copyright (c) 2023 Dave Keeshan")
+        self.log.info("Copyright (c) 2023 Daxzio")
         self.log.info("https://github.com/daxzio/cocotbext-dvi")
         self.log.info(f"Generating Clock frequency: {self.clk_freq} MHz")
 
@@ -59,9 +59,15 @@ class DVIDriver(CocoTBExtLogger):
         self.queue_delay = 0
 
         self.tmds = [TMDS(), TMDS(), TMDS()]
-        self.sync = RGBDriver(
+        self.rgb_in = RGBDriver(
             self.clk_p,
             image_file=self.image_file,
+            #             vsync=dut.vsync,
+            #             hsync=dut.hsync,
+            #             de=dut.de,
+            #             data0=dut.data_r,
+            #             data1=dut.data_g,
+            #             data2=dut.data_b,
             logging_enabled=False,
         )
 
@@ -94,13 +100,13 @@ class DVIDriver(CocoTBExtLogger):
         while True:
             await FallingEdge(self.clk_p)
             self.tmds[0].encode(
-                self.sync.data[0].value,
-                self.sync.de.value,
-                self.sync.vsync.value,
-                self.sync.hsync.value,
+                self.rgb_in.data[0].value,
+                self.rgb_in.de.value,
+                self.rgb_in.vsync.value,
+                self.rgb_in.hsync.value,
             )
-            self.tmds[1].encode(self.sync.data[1].value, self.sync.de.value)
-            self.tmds[2].encode(self.sync.data[2].value, self.sync.de.value)
+            self.tmds[1].encode(self.rgb_in.data[1].value, self.rgb_in.de.value)
+            self.tmds[2].encode(self.rgb_in.data[2].value, self.rgb_in.de.value)
             for i in range(10):
                 tx = 0
                 for j in range(3):
