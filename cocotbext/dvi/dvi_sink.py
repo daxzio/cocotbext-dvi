@@ -35,7 +35,9 @@ from .rgb_sink import RGBSink
 
 
 class DVISink(CocoTBExtLogger):
-    def __init__(self, dut, image_file=None, dvi_prefix="tmds_out"):
+    def __init__(
+        self, dut, image_file=None, dvi_prefix="tmds_out", debug_prefix="debug"
+    ):
         CocoTBExtLogger.__init__(self, type(self).__name__)
 
         self.image_file = image_file
@@ -49,15 +51,21 @@ class DVISink(CocoTBExtLogger):
         self.clk = getattr(dut, f"{dvi_prefix}_clk_p")
         self.data = getattr(dut, f"{dvi_prefix}_data_p")
 
+        vsync = getattr(dut, f"{debug_prefix}_vsync", None)
+        hsync = getattr(dut, f"{debug_prefix}_hsync", None)
+        de = getattr(dut, f"{debug_prefix}_de", None)
+        data_r = getattr(dut, f"{debug_prefix}_data_r", None)
+        data_g = getattr(dut, f"{debug_prefix}_data_g", None)
+        data_b = getattr(dut, f"{debug_prefix}_data_b", None)
         self.rgb_out = RGBSink(
             self.clk,
             image_file=self.image_file,
-            #             vsync=dut.vsync,
-            #             hsync=dut.hsync,
-            #             de=dut.de,
-            #             data0=dut.data_r,
-            #             data1=dut.data_g,
-            #             data2=dut.data_b,
+            vsync=vsync,
+            hsync=hsync,
+            de=de,
+            data0=data_r,
+            data1=data_g,
+            data2=data_b,
             logging_enabled=False,
         )
 
@@ -68,6 +76,14 @@ class DVISink(CocoTBExtLogger):
         self.tmdsin = [0, 0, 0]
 
         self._restart()
+
+    @property
+    def verify(self):
+        return self.rgb_out.verify
+
+    @verify.setter
+    def verify(self, value):
+        self.rgb_out.verify = value
 
     async def wait_bit(self, amount=1.0):
         await Timer(int(amount * self.time_delta) / 5, units="step")
@@ -130,5 +146,6 @@ class DVISink(CocoTBExtLogger):
     async def frame_finished(self):
         await self.rgb_out.frame_finished()
 
-    def report_frame(self):
-        self.rgb_out.report_frame()
+
+#     def report_frame(self):
+#         self.rgb_out.report_frame()

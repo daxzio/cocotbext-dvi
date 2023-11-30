@@ -16,6 +16,12 @@ module dut (
   ,output [7:0] data_r      
   ,output [7:0] data_g     
   ,output [7:0] data_b      
+  ,input        rgb_debug_vsync        
+  ,input        rgb_debug_hsync        
+  ,input        rgb_debug_de  
+  ,input  [7:0] rgb_debug_data_r      
+  ,input  [7:0] rgb_debug_data_g     
+  ,input  [7:0] rgb_debug_data_b      
   ,input        rgb_in_vsync        
   ,input        rgb_in_hsync        
   ,input        rgb_in_de  

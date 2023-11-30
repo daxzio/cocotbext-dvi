@@ -36,7 +36,14 @@ from .tmds import TMDS
 
 
 class DVIDriver(CocoTBExtLogger):
-    def __init__(self, dut, image_file=None, dvi_prefix="tmds_in", clk_freq=25.0):
+    def __init__(
+        self,
+        dut,
+        image_file=None,
+        dvi_prefix="tmds_in",
+        debug_prefix="debug",
+        clk_freq=25.0,
+    ):
         logging_enabled = True
         CocoTBExtLogger.__init__(self, type(self).__name__, logging_enabled)
         self.image_file = image_file
@@ -59,15 +66,21 @@ class DVIDriver(CocoTBExtLogger):
         self.queue_delay = 0
 
         self.tmds = [TMDS(), TMDS(), TMDS()]
+        vsync = getattr(dut, f"{debug_prefix}_vsync", None)
+        hsync = getattr(dut, f"{debug_prefix}_hsync", None)
+        de = getattr(dut, f"{debug_prefix}_de", None)
+        data_r = getattr(dut, f"{debug_prefix}_data_r", None)
+        data_g = getattr(dut, f"{debug_prefix}_data_g", None)
+        data_b = getattr(dut, f"{debug_prefix}_data_b", None)
         self.rgb_in = RGBDriver(
             self.clk_p,
             image_file=self.image_file,
-            #             vsync=dut.vsync,
-            #             hsync=dut.hsync,
-            #             de=dut.de,
-            #             data0=dut.data_r,
-            #             data1=dut.data_g,
-            #             data2=dut.data_b,
+            vsync=vsync,
+            hsync=hsync,
+            de=de,
+            data0=data_r,
+            data1=data_g,
+            data2=data_b,
             logging_enabled=False,
         )
 

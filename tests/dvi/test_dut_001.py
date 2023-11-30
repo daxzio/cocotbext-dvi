@@ -182,6 +182,36 @@ async def test_dut_dvi(dut):
           
     await tb.cr.end_test()
 
+@test()
+async def test_dut_dvi_debug_in(dut):
+    image_file="../images/80x60.png"
+    tb = testbench(dut)
+    tb.dvi_in = DVIDriver(dut, image_file, debug_prefix="rgb_debug")
+    tb.dvi_out = DVISink(dut, image_file)
+ 
+    await tb.cr.start_test()
+
+    await tb.dvi_out.frame_finished()
+
+    await tb.cr.wait_clkn(1000)
+          
+    await tb.cr.end_test()
+
+@test()
+async def test_dut_dvi_debug_out(dut):
+    image_file="../images/80x60.png"
+    tb = testbench(dut)
+    tb.dvi_in = DVIDriver(dut, image_file)
+    tb.dvi_out = DVISink(dut, image_file, debug_prefix="rgb_debug")
+ 
+    await tb.cr.start_test()
+
+    await tb.dvi_out.frame_finished()
+
+    await tb.cr.wait_clkn(1000)
+          
+    await tb.cr.end_test()
+
 
 
 

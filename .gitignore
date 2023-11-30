@@ -9,3 +9,4 @@ waves.shm/
 results.xml
 *.egg-info/
 *.vcd
+*.fst
