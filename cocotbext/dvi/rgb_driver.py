@@ -23,11 +23,13 @@ THE SOFTWARE.
 """
 from cocotb.triggers import RisingEdge
 from cocotb import start_soon
+from cocotb.utils import get_sim_time
 
 from .version import __version__
 from .cocotbext_logger import CocoTBExtLogger
 from .rgbimage import RGBImage
 from .sigorvar import SignalOrVariable
+from .sync_driver import syncDriver
 
 
 class RGBDriver(CocoTBExtLogger):
@@ -35,6 +37,9 @@ class RGBDriver(CocoTBExtLogger):
         self,
         clk,
         image_file=None,
+        frequency=60,
+        height=None,
+        width=None,
         vsync=None,
         hsync=None,
         de=None,
@@ -48,10 +53,18 @@ class RGBDriver(CocoTBExtLogger):
         self.log.info(f"cocotbext-dvi version {__version__}")
         self.log.info("Copyright (c) 2023 Daxzio")
         self.log.info("https://github.com/daxzio/cocotbext-dvi")
+#         self.log.info(f"Generating Clock frequency: {self.clk_freq} MHz")
         self.clk = clk
-
-        self.image_file = image_file
-        self.img = RGBImage(self.image_file)
+        self.height = height
+        self.width = width
+        if isinstance(image_file, (list, tuple)):
+            self.image_file = image_file
+        else:
+            self.image_file = [image_file]
+            
+        self.frequency = frequency
+        self.sync_edge = 0
+        self.sync = syncDriver(None, frequency=self.frequency, offset_start=200000)
 
         self.vsync = SignalOrVariable(vsync)
         self.hsync = SignalOrVariable(hsync)
@@ -74,57 +87,93 @@ class RGBDriver(CocoTBExtLogger):
 
         self._restart()
 
+#     async def _restart(self):
+#         for i in range(100):
+#             await RisingEdge(self.clk)
     def _restart(self):
-        start_soon(self._detect_clk())
+        start_soon(self._gen_rgb())
+        start_soon(self._edge_sync())
 
-    async def _detect_clk(self):
+    async def _gen_rgb(self):
+        img_index = 0
+        #Read first image to get dimensions, it is assumed that all subsequent images
+        # will be of the dsame dimensions
+        self.img = RGBImage(self.image_file[img_index], height=self.height, width=self.width)
+        #self.log.info(f"Generating image {img_index} {self.img.width}x{self.img.height} @ {self.frequency} Hz")
         row_cnt = 0
         col_cnt = 0
+        max_dimension = max(self.img.width, self.img.height)
+        hsync_width = self.img.width + 150
+        vsync_indent = 1
+        vsync_start = vsync_indent * hsync_width
+        vsync_end   =  vsync_start + (hsync_width * (self.img.height + 4))
+        dimesion_delta = 2
+        while True:
+            await RisingEdge(self.clk)
+            if self.sync.sync.value:
+                break
         while True:
             await RisingEdge(self.clk)
             self.data[0].value = 0
             self.data[1].value = 0
             self.data[2].value = 0
-            #             hsync_offset = 36
-            #             hsync_offset = 20
-            hsync_offset = int((self.img.width - self.img.height) / 2)
-            if self.hsync_cnt < hsync_offset or self.hsync_cnt >= (
-                hsync_offset + self.img.height
-            ):
+            hsync_offset = vsync_indent + 1 + dimesion_delta
+            if self.hsync_cnt < hsync_offset or self.hsync_cnt >= (hsync_offset + self.img.height):
                 col_cnt = 0
                 self.de.value = False
-            elif (self.vsync_cnt % (2 * self.img.width)) < self.img.height:
+            elif (self.vsync_cnt % hsync_width) < 8:
                 self.de.value = False
-            elif (self.vsync_cnt % (2 * self.img.width)) >= (
-                self.img.height + self.img.width
-            ):
+            elif (self.vsync_cnt % hsync_width) >= (8 + self.img.width):
                 self.de.value = False
             else:
                 self.de.value = True
                 self.data[0].value = int(self.img[row_cnt, col_cnt, 0])
                 self.data[1].value = int(self.img[row_cnt, col_cnt, 1])
                 self.data[2].value = int(self.img[row_cnt, col_cnt, 2])
+#                 print(row_cnt, col_cnt)
                 if col_cnt == self.img.width - 1:
                     col_cnt = 0
                     row_cnt = (row_cnt + 1) % self.img.height
                 else:
                     col_cnt += 1
 
-            if (self.vsync_cnt % (2 * self.img.width)) < (self.img.width / 5):
+            if (self.vsync_cnt % hsync_width) < 4:
                 self.hsync.value = False
-                if 0 == (self.vsync_cnt % (2 * self.img.width)):
+                if 0 == (self.vsync_cnt % hsync_width):
                     self.hsync_cnt += 1
             else:
                 self.hsync.value = True
 
-            if self.vsync_cnt < (int(self.img.height / 10) * self.img.width):
+            if self.vsync_cnt < vsync_start:
+                self.vsync.value = False
+            elif self.vsync_cnt > vsync_end-1:
                 self.vsync.value = False
             else:
                 self.vsync.value = True
 
-            if self.vsync_cnt == ((2 * self.img.width) * (self.img.width + 10)) - 1:
+            if self.sync_edge:
                 self.vsync_cnt = 0
                 self.hsync_cnt = 0
                 row_cnt = 0
+                try:
+                    self.img = RGBImage(self.image_file[img_index], height=self.height, width=self.width)
+                    self.log.info(f"Generating image {img_index} {self.img.width}x{self.img.height} @ {self.frequency} Hz")
+                    img_index += 1
+                except IndexError:
+                    self.log.info(f"Reusing image {img_index-1} {self.img.width}x{self.img.height} @ {self.frequency} Hz")
+                    pass
+                self.log.info(f"\t{self.img.image_file}")
             else:
                 self.vsync_cnt = self.vsync_cnt + 1
+
+    async def _edge_sync(self):
+        sync_last = 0
+        while True:
+            await RisingEdge(self.clk)
+            self.sync_edge = 0
+            if 1 == self.sync.sync.value and 0 == sync_last:
+                if self.vsync.value:
+                    self.log.warning(f"Last frames is not complete, frequency is too fast, {self.frequency} Hz")
+                self.log.info(f"Sync edge detected, {get_sim_time("step")}")
+                self.sync_edge = 1
+            sync_last = self.sync.sync.value

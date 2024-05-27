@@ -16,18 +16,19 @@ lint:
 
 format:
 	verible-verilog-format \
-	    --inplace \
-        --column_limit 120 \
+		--inplace \
+		--column_limit 120 \
 		--indentation_spaces 4 \
-        --module_net_variable_alignment align \
-        --named_port_alignment align \
-        --port_declarations_alignment align \
-        --formal_parameters_alignment align \
-	    --assignment_statement_alignment align \
-        --case_items_alignment align \
+		--module_net_variable_alignment align \
+		--named_port_alignment align \
+        --named_parameter_alignment align \
+		--port_declarations_alignment align \
+		--formal_parameters_alignment align \
+		--assignment_statement_alignment align \
+		--case_items_alignment align \
 		--class_member_variable_alignment align \
-        --distribution_items_alignment align \
-        --enum_assignment_statement_alignment align \
+		--distribution_items_alignment align \
+		--enum_assignment_statement_alignment align \
 		${RTL_SOURCES} ${DUT_SOURCES}
 
 # test:

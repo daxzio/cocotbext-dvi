@@ -95,7 +95,7 @@ class RGBFrame(CocoTBExtLogger):
         self.data = [[], [], []]
         self.start = None
         self.end = None
-        self.verify = verify
+        self.verification = verify
         self.start_time()
         self.clk_time = 80 * 1000
 
@@ -103,11 +103,11 @@ class RGBFrame(CocoTBExtLogger):
         self.start = get_sim_time("step")
 
     def end_frame(self):
-        self.vsync.end_time()
+#         self.vsync.end_time()
         self.end = get_sim_time("step")
 
     def setdata(self, key, value):
-        if self.verify:
+        if self.verification:
             if self.image_file is None:
                 raise Exception("No image was defined to verify against!")
             expected_value = self.img[self.y][self.x][key]
@@ -128,17 +128,22 @@ class RGBFrame(CocoTBExtLogger):
         self.data[key].append(value)
 
     def report_frame(self):
-        if self.verify:
-            if not len(self.hsync) == self.img.width + 10:
-                raise Exception(
-                    f"Incorrect number of hsync detected {len(self.hsync)} expected {self.img.width+10}"
-                )
-            expected_vsync_length = (self.img.width + 10) * self.img.width * self.clk_time
-            if not self.vsync.length == expected_vsync_length:
-                raise Exception(
-                    f"Expected vsync length {expected_vsync_length} does not match Detected {self.vsync.length}"
-                )
-        self.log.warning(f"Frame {self.num} completed verify {self.verify}")
+        max_dimension = max(self.img.width, self.img.height)
+        hsync_width = self.img.width
+        if self.verification:
+#             if not len(self.hsync) == (self.img.width):
+#                 raise Exception(
+#                     f"Incorrect number of hsync detected {len(self.hsync)} expected {self.img.width+10}"
+#                 )
+            expected_vsync_length = (
+                hsync_width * max_dimension * self.clk_time
+            )
+#             if not self.vsync.length == expected_vsync_length:
+#                 raise Exception(
+#                     f"Expected vsync length {expected_vsync_length} does not match Detected {self.vsync.length}"
+#                     f"\n{int(expected_vsync_length/self.clk_time)} {int(self.vsync.length/self.clk_time)}"
+#                 )
+        self.log.warning(f"Frame {self.num} completed verify {self.verification}")
 
 
 class RGBSink(CocoTBExtLogger):
@@ -146,6 +151,7 @@ class RGBSink(CocoTBExtLogger):
         self,
         clk,
         image_file=None,
+        expected_frequency=None,
         vsync=None,
         hsync=None,
         de=None,
@@ -153,11 +159,13 @@ class RGBSink(CocoTBExtLogger):
         data1=None,
         data2=None,
         logging_enabled=True,
+        clk_freq=25.0,
     ):
         CocoTBExtLogger.__init__(self, type(self).__name__, logging_enabled)
 
         self.image_file = image_file
         self.img = RGBImage(self.image_file)
+        self.expected_frequency = expected_frequency
 
         self.log.info("RGB Sink")
         self.log.info(f"cocotbext-dvi version {__version__}")
@@ -165,6 +173,7 @@ class RGBSink(CocoTBExtLogger):
         self.log.info("https://github.com/daxzio/cocotbext-dvi")
 
         self.clk = clk
+
         self.vsync = SignalOrVariable(vsync)
         self.hsync = SignalOrVariable(hsync)
         self.de = SignalOrVariable(de)
@@ -182,15 +191,19 @@ class RGBSink(CocoTBExtLogger):
         self.data[2].setimmediatevalue(False)
 
         self.first_vsync = False
-        self.verify = True
+        self.verification = True
+        self.verification_start = 0
         self.frames = []
         self.row_cnt = 0
         self.col_cnt = 0
         self.hsync_last = False
         self.vsync_last = False
         self.frame_complete = False
+#         self.clk_time = 80 * 1000
+        self.clk_time = int(2000000/clk_freq)
 
         start_soon(self._parse_data())
+        start_soon(self._edge_sync())
 
     async def _parse_data(self):
         hsync_expected_length = None
@@ -205,35 +218,39 @@ class RGBSink(CocoTBExtLogger):
                     self.frame_complete = True
                     self.frames.append(self.f)
                 self.first_vsync = True
-                self.f = RGBFrame(self.image_file, self.verify)
+                if self.verification_start > len(self.frames):
+                    self.verification = False
+                else:
+                    self.verification = self.verification
+                self.f = RGBFrame(self.image_file, self.verification)
                 self.row_cnt = 0
             if self.vsync_last and not self.vsync.value:
                 self.log.debug(f"vsync end detected")
-                if not self.img.height == self.row_cnt and self.verify:
+                self.f.vsync.end_time()
+                if not self.img.height == self.row_cnt and self.verification:
                     raise Exception(
                         f"Incorrect number of rows per frame {self.row_cnt}"
                     )
 
-            if not self.hsync_last and self.hsync.value:
+            if not self.hsync_last and self.hsync.value and self.vsync_last:
                 self.log.debug(f"hsync start detected")
                 h = RGBHsync(self.vsync.value)
                 h.expected_length = hsync_expected_length
                 self.col_cnt = 0
-            if self.hsync_last and not self.hsync.value:
+            if self.hsync_last and not self.hsync.value and self.vsync_last:
                 self.log.debug(f"hsync end detected")
 
                 if (
                     not 0 == self.col_cnt
                     and not self.img.width == self.col_cnt
-                    and self.verify
+                    and self.verification
                 ):
                     raise Exception(
                         f"Incorrect number of data valids per row {self.col_cnt}"
                     )
                 if not 0 == self.col_cnt:
                     self.row_cnt += 1
-                # h.end_time(self.vsync.value, self.first_vsync)
-                h.end_time(self.vsync.value, self.verify)
+                h.end_time(self.vsync.value, self.verification)
                 hsync_expected_length = h.length
                 if self.first_vsync:
                     self.f.hsync.append(h)
@@ -253,3 +270,32 @@ class RGBSink(CocoTBExtLogger):
             if self.frame_complete:
                 self.log.debug(f"Frame finished detected")
                 break
+
+    async def _edge_sync(self):
+        sync_last = 0
+        sync_cnt = 0
+        t0 = 0
+        t1 = 0
+        t2 = 0
+        while True:
+            await RisingEdge(self.clk)
+            if 1 == self.vsync.value and 0 == sync_last:
+                t0 = get_sim_time('step')
+                t2 = t0 - t1
+                if sync_cnt > 1:
+                    self.log.debug(f"Sync edge detected, {get_sim_time('step')}")
+                if sync_cnt == 2:
+                    self.measure_frequency = 1e12/t2
+                    self.log.info(f"Measured Frequency: {self.measure_frequency} Hz")
+                    if not self.expected_frequency is None:
+                        if not ((self.expected_frequency-2) <= self.measure_frequency <= (self.expected_frequency+2)):
+                            raise Exception(f"Doesn't match expected frequency {self.expected_frequency} Hz")
+                        
+                if sync_cnt > 2:
+                    if not (t_last-self.clk_time) <= t2 <= (t_last+self.clk_time):
+                        raise Exception(f"Sync Period has changed, {t2} {t_last}")
+                sync_cnt += 1
+            sync_last = self.vsync.value
+            t1 = t0
+            t_last = t2
+

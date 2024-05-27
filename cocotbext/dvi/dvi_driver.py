@@ -40,9 +40,12 @@ class DVIDriver(CocoTBExtLogger):
         self,
         dut,
         image_file=None,
+        frequency=60,
         dvi_prefix="tmds_in",
         debug_prefix="debug",
         clk_freq=25.0,
+        height=None,
+        width=None,
     ):
         logging_enabled = True
         CocoTBExtLogger.__init__(self, type(self).__name__, logging_enabled)
@@ -75,6 +78,9 @@ class DVIDriver(CocoTBExtLogger):
         self.rgb_in = RGBDriver(
             self.clk_p,
             image_file=self.image_file,
+            frequency=frequency,
+            height=height,
+            width=width,
             vsync=vsync,
             hsync=hsync,
             de=de,

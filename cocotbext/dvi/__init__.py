@@ -28,3 +28,4 @@ from .dvi_driver import DVIDriver
 from .dvi_sink import DVISink
 from .rgb_driver import RGBDriver
 from .rgb_sink import RGBSink
+from .rgbimage import RGBImage

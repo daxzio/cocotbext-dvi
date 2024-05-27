@@ -78,12 +78,20 @@ class DVISink(CocoTBExtLogger):
         self._restart()
 
     @property
-    def verify(self):
-        return self.rgb_out.verify
+    def verification(self):
+        return self.rgb_out.verification
 
-    @verify.setter
-    def verify(self, value):
-        self.rgb_out.verify = value
+    @verification.setter
+    def verification(self, value):
+        self.rgb_out.verification = value
+
+    @property
+    def verify_start(self):
+        return self.rgb_out.verify_start
+
+    @verify_start.setter
+    def verify_start(self, value):
+        self.rgb_out.verify_start = value
 
     async def wait_bit(self, amount=1.0):
         await Timer(int(amount * self.time_delta) / 5, units="step")

@@ -1,11 +1,22 @@
 TOPLEVEL_LANG?=verilog
-DUT?=dut
-TOPLEVEL?=${DUT}
+TOPLEVEL?=dut
 MODULE?=test_dut
 
+COCOTB_RESOLVE_X?=ZEROS
+export COCOTB_RESOLVE_X
+
+ifneq (,$(wildcard ./makefile_synth.mak))
+default: vivado_build
+SIM:=icarus
+else
 default: sim
+endif
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
+include ${WORK_BASE}/rtlflo/xilinx_helper.mak
+include ${WORK_BASE}/rtlflo/verible_helper.mak
+include ${WORK_BASE}/rtlflo/git_helper.mak
+
 
 # Process generics
 ifeq ($(TOPLEVEL_LANG),verilog)
@@ -61,10 +72,7 @@ ifeq ($(TOPLEVEL_LANG),verilog)
 	else ifeq ($(SIM), ius)
 		COMPILE_ARGS += -disable_sem2009
 		COMPILE_ARGS += -sv
-		COMPILE_ARGS += -top ${DUT}
-# 		COMPILE_ARGS += -vhdl_time_precision 1ps
-		#COMPILE_ARGS += -timescale $(COCOTB_HDL_TIMESCALE)/$(COCOTB_HDL_TIMEPRECISION)
-# 		COMPILE_ARGS += -timescale 1ns/1ps
+		COMPILE_ARGS += -top ${TOPLEVEL}
 	else ifeq ($(SIM),xcelium)
 		COMPILE_ARGS += -disable_sem2009
 		COMPILE_ARGS += -sv
@@ -95,5 +103,5 @@ else ifeq ($(SIM),verilator)
 endif
 
 clean::
-	rm -rf __pycache__/ .simvision/ .Xil/ results.xml *.trn *.dsn vivado* *.vcd *.out irun* simvision* xrun* .bpad/ waves.shm/ *.err INCA_libs/ *.fst ncvlog.log
+	rm -rf __pycache__/ .simvision/ .Xil/ results.xml *.trn *.dsn vivado* *.vcd *.out irun* simvision* xrun* .bpad/ waves.shm/ *.err INCA_libs/ *.fst* ncvlog.log
 

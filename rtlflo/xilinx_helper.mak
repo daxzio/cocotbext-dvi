@@ -58,10 +58,10 @@ ifneq (${XILINX_BASE},)
 			    ${XILINX_BASE}/verilog/src/glbl.v
 		endif
     else ifeq ($(SIM),verilator)
-	    COMPILE_ARGS += --top-module glbl
-		VERILOG_SOURCES += \
-			${XILINX_BASE}/verilog/src/glbl.v
-	    VERILOG_SOURCES += ${UNISIMS} 
+# 	    COMPILE_ARGS += --top-module glbl
+# 		VERILOG_SOURCES += \
+# 			${XILINX_BASE}/verilog/src/glbl.v
+# 	    VERILOG_SOURCES += ${UNISIMS} 
     endif
         
 endif
@@ -119,6 +119,21 @@ all_libs:: xilinx_library
 
 all_libs_clean:: xilinx_library_clean
 
+#FPGA_DESIGN += ${XILINX_SYNTH_SOURCES} ${RTL_SOURCES} ${IMPORT_SOURCES}
+FPGA_DESIGN = ${XILINX_SYNTH_SOURCES} ${RTL_SOURCES} ${IMPORT_SOURCES} ${VHDL_SOURCES}
+
+
+vivado_build:
+	@ export XILINX_PART="${XILINX_PART}" ; \
+	export XILINX_CONSTRAINTS="${XILINX_CONSTRAINTS}" ; \
+	export XILINX_CUSTOM=${XILINX_CUSTOM} ; \
+	export SYNTH_TOP=${SYNTH_TOP} ; \
+	export BUILD_NAME=${BUILD_NAME} ; \
+	export VERILOG_INCLUDE_DIRS="${VERILOG_INCLUDE_DIRS}" ; \
+	export GENERICS="${GENERICS}" ; \
+	export FPGA_DESIGN="${FPGA_DESIGN}" ; \
+		${RTLFLO_PATH}/vivado_helper.py
+    
 git_xilinx:
 	git add ${PROJ_HOME}/xilinx/ip_srcs/${XILINX_PART}/${XILINX_REV}/common/common.ip_user_files/ip/*/*_sim_netlist.v -f
 	git add ${PROJ_HOME}/xilinx/ip_srcs/${XILINX_PART}/${XILINX_REV}/common/common.srcs/sources_1/ip/*.xcix
