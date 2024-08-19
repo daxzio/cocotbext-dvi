@@ -103,7 +103,7 @@ class RGBDriver(CocoTBExtLogger):
         row_cnt = 0
         col_cnt = 0
         max_dimension = max(self.img.width, self.img.height)
-        hsync_width = self.img.width + 150
+        hsync_width = self.img.width + 250
         vsync_indent = 1
         vsync_start = vsync_indent * hsync_width
         vsync_end   =  vsync_start + (hsync_width * (self.img.height + 4))

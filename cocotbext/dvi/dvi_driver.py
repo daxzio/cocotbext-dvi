@@ -52,7 +52,7 @@ class DVIDriver(CocoTBExtLogger):
         self.image_file = image_file
 
         self.clk_freq = clk_freq
-        self.clock_period = 1000 / self.clk_freq
+        self.clock_period = round((1000 / self.clk_freq), 2)
 
         self.log.info("DVI Driver")
         self.log.info(f"cocotbext-dvi version {__version__}")
