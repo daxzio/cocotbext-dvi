@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Daxzio
+Copyright (c) 2023-2025 Daxzio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,30 +21,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
+
+import os
 import cv2 as cv
 
 
 class RGBImage:
     def __init__(self, image_file=None, height=None, width=None):
         self.image_file = image_file
-        if not image_file is None:
+        if isinstance(self.image_file, str) and not os.path.isfile(self.image_file):
+            raise Exception(f"Unknown file {self.image_file}")
+        if image_file is not None:
             self.img = cv.imread(self.image_file, 1)
-#             self._height = self.img.shape[0]
-#             self._width = self.img.shape[1]
             self.height = self.img.shape[0]
             self.width = self.img.shape[1]
-        if not height is None:
+        if height is not None:
             self.height = height
-        if not width is None:
+        if width is not None:
             self.width = width
-# 
-#     @property
-#     def height(self):
-#         return self._height
-# 
-#     @property
-#     def width(self):
-#         return self._width
 
     def __getitem__(self, index):
         return self.img[index]

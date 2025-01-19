@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Daxzio
+Copyright (c) 2023-2025 Daxzio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,6 @@ THE SOFTWARE.
 
 """
 
-
 from cocotb.triggers import RisingEdge, FallingEdge, Timer
 from cocotb import start_soon
 from cocotb.utils import get_sim_time
@@ -32,41 +31,45 @@ from .cocotbext_logger import CocoTBExtLogger
 from .tmds import TMDS
 from .rgbimage import RGBImage
 from .rgb_sink import RGBSink
+from .rgb_bus import DummyRGBBus
 
 
 class DVISink(CocoTBExtLogger):
     def __init__(
-        self, dut, image_file=None, dvi_prefix="tmds_out", debug_prefix="debug"
+        self,
+        dut,
+        bus,
+        rgb_bus=None,
+        image_file=None,
+        expected_frequency=None,
+        height=-1,
+        width=-1,
     ):
         CocoTBExtLogger.__init__(self, type(self).__name__)
 
+        self.bus = bus
+        self.rgb_bus = rgb_bus
         self.image_file = image_file
         self.img = RGBImage(self.image_file)
 
         self.log.info("DVI Sink")
         self.log.info(f"cocotbext-dvi version {__version__}")
-        self.log.info("Copyright (c) 2023 Daxzio")
+        self.log.info("Copyright (c) 2023-2025 Daxzio")
         self.log.info("https://github.com/daxzio/cocotbext-dvi")
 
-        self.clk = getattr(dut, f"{dvi_prefix}_clk_p")
-        self.data = getattr(dut, f"{dvi_prefix}_data_p")
+        self.clk = self.bus.clk_p
+        self.data = self.bus.data_p
 
-        vsync = getattr(dut, f"{debug_prefix}_vsync", None)
-        hsync = getattr(dut, f"{debug_prefix}_hsync", None)
-        de = getattr(dut, f"{debug_prefix}_de", None)
-        data_r = getattr(dut, f"{debug_prefix}_data_r", None)
-        data_g = getattr(dut, f"{debug_prefix}_data_g", None)
-        data_b = getattr(dut, f"{debug_prefix}_data_b", None)
+        if self.rgb_bus is None:
+            self.rgb_bus = DummyRGBBus()
+
         self.rgb_out = RGBSink(
             self.clk,
+            self.rgb_bus,
             image_file=self.image_file,
-            vsync=vsync,
-            hsync=hsync,
-            de=de,
-            data0=data_r,
-            data1=data_g,
-            data2=data_b,
-            logging_enabled=False,
+            expected_frequency=expected_frequency,
+            height=height,
+            width=width,
         )
 
         self.start = False
@@ -130,14 +133,16 @@ class DVISink(CocoTBExtLogger):
                 self.tmdsin = [0, 0, 0]
                 for i in range(10):
                     for j, _ in enumerate(self.tmdsin):
-                        self.tmdsin[j] |= int(self.data[j].value) << i
+                        self.tmdsin[j] |= int((self.data.value >> j) & 0x1) << i
                     if i < 9:
                         await self.wait_bit()
 
+                data = 0
                 for i in range(len(self.tmds)):
                     self.tmds[i].decode(self.tmdsin[i])
                     if self.tmds[i].de:
-                        self.rgb_out.data[i].value = self.tmds[i].dataout
+                        data += self.tmds[i].dataout << (8 * i)
+                self.rgb_out.data.value = data
                 self.rgb_out.de.value = self.tmds[0].de
                 if not self.tmds[0].de:
                     self.rgb_out.hsync.value = self.tmds[0].hsync

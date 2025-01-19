@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Daxzio
+Copyright (c) 2023-2025 Daxzio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,21 @@ THE SOFTWARE.
 
 from .version import __version__
 
+from .dvi_bus import DVIBus
 from .dvi_driver import DVIDriver
 from .dvi_sink import DVISink
+from .rgb_bus import RGBBus
 from .rgb_driver import RGBDriver
 from .rgb_sink import RGBSink
 from .rgbimage import RGBImage
+
+__all__ = [
+    "__version__",
+    "DVIBus",
+    "DVIDriver",
+    "DVISink",
+    "RGBBus",
+    "RGBDriver",
+    "RGBSink",
+    "RGBImage",
+]

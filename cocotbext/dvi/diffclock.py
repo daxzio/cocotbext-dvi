@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Dave Keeshan
+Copyright (c) 2023-2025 Daxzio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
-import itertools
-from decimal import Decimal
-from numbers import Real
-from typing import Union
-from cocotb.triggers import Timer
+
+from cocotb import start_soon
 from cocotb.clock import Clock
 
 
@@ -54,52 +51,25 @@ class DiffClock(Clock):
             ``'step'``, ``'fs'``, ``'ps'``, ``'ns'``, ``'us'``, ``'ms'``, ``'sec'``.
             When *units* is ``'step'``,
             the timestep is determined by the simulator (see :make:var:`COCOTB_HDL_TIMEPRECISION`).
+        impl: One of
+            ``'auto'``, ``'gpi'``, ``'py'``.
+            Specify whether the clock is implemented with a :class:`~cocotb.simulator.GpiClock` (faster), or with a Python coroutine.
+            When ``'auto'`` is used (default), the fastest implementation that supports your environment and use case is picked.
 
-                .. versionadded:: 1.9
+            .. versionadded:: 2.0
+
     """
 
     def __init__(
         self,
         signal_p,
         signal_n,
-        period: Union[float, Real, Decimal],
-        units: str = "step",
+        *args,
+        **kwargs,
     ):
-        Clock.__init__(self, signal_p, period, units)
-        self.signal_n = signal_n
+        Clock.__init__(self, signal_p, *args, **kwargs)
+        self.signal_n = Clock(signal_n, *args, **kwargs)
 
-    async def start(self, cycles=None, start_high=True, wait_cycles=None):
-        r"""Clocking coroutine.  Start driving your clock by :func:`cocotb.start`\ ing a
-        call to this.
-
-        Args:
-            cycles (int, optional): Cycle the clock *cycles* number of times,
-                or if ``None`` then cycle the clock forever.
-                Note: ``0`` is not the same as ``None``, as ``0`` will cycle no times.
-            start_high (bool, optional): Whether to start the clock with a ``1``
-                for the first half of the period.
-                Default is ``True``.
-            wait_cycles (int, optional): Delay the start of the clock by an integer
-                count of cycles.
-                Default is ``None``.
-
-        """
-        if not wait_cycles is None:
-            self.signal.value = start_high
-            self.signal_n.value = not start_high
-            t = Timer(self.period * wait_cycles)
-            await t
-
-        t = Timer(self.half_period)
-        if cycles is None:
-            it = itertools.count()
-        else:
-            it = range(cycles)
-
-        for _ in it:
-            self.signal.value = start_high
-            self.signal_n.value = not start_high
-            await t
-            self.signal.value = not start_high
-            self.signal_n.value = start_high
-            await t
+    async def start(self, start_high=True, wait_cycles=0):
+        start_soon(self.signal_n.start(start_high=not (start_high)))
+        await Clock.start(self, start_high=start_high)

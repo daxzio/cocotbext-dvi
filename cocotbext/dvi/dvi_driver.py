@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Daxzio
+Copyright (c) 2023-2025 Daxzio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,6 @@ THE SOFTWARE.
 
 """
 
-
 from cocotb import start_soon
 from cocotb.triggers import FallingEdge, Timer
 from cocotb.queue import Queue
@@ -33,22 +32,25 @@ from .diffclock import DiffClock
 from .diffobject import DiffModifiableObject
 from .rgb_driver import RGBDriver
 from .tmds import TMDS
+from .rgb_bus import DummyRGBBus
 
 
 class DVIDriver(CocoTBExtLogger):
     def __init__(
         self,
         dut,
+        bus,
+        rgb_bus=None,
         image_file=None,
         frequency=60,
-        dvi_prefix="tmds_in",
-        debug_prefix="debug",
         clk_freq=25.0,
         height=None,
         width=None,
     ):
         logging_enabled = True
         CocoTBExtLogger.__init__(self, type(self).__name__, logging_enabled)
+        self.bus = bus
+        self.rgb_bus = rgb_bus
         self.image_file = image_file
 
         self.clk_freq = clk_freq
@@ -56,37 +58,28 @@ class DVIDriver(CocoTBExtLogger):
 
         self.log.info("DVI Driver")
         self.log.info(f"cocotbext-dvi version {__version__}")
-        self.log.info("Copyright (c) 2023 Daxzio")
+        self.log.info("Copyright (c) 2023-2025 Daxzio")
         self.log.info("https://github.com/daxzio/cocotbext-dvi")
         self.log.info(f"Generating Clock frequency: {self.clk_freq} MHz")
 
-        self.clk_p = getattr(dut, f"{dvi_prefix}_clk_p")
-        self.clk_n = getattr(dut, f"{dvi_prefix}_clk_n")
-        self.data_p = getattr(dut, f"{dvi_prefix}_data_p")
-        self.data_n = getattr(dut, f"{dvi_prefix}_data_n")
+        self.clk_p = self.bus.clk_p
+        self.clk_n = self.bus.clk_n
+        self.data_p = self.bus.data_p
+        self.data_n = self.bus.data_n
 
         self.queue = Queue()
         self.queue_delay = 0
 
         self.tmds = [TMDS(), TMDS(), TMDS()]
-        vsync = getattr(dut, f"{debug_prefix}_vsync", None)
-        hsync = getattr(dut, f"{debug_prefix}_hsync", None)
-        de = getattr(dut, f"{debug_prefix}_de", None)
-        data_r = getattr(dut, f"{debug_prefix}_data_r", None)
-        data_g = getattr(dut, f"{debug_prefix}_data_g", None)
-        data_b = getattr(dut, f"{debug_prefix}_data_b", None)
+        if self.rgb_bus is None:
+            self.rgb_bus = DummyRGBBus()
         self.rgb_in = RGBDriver(
             self.clk_p,
+            self.rgb_bus,
             image_file=self.image_file,
             frequency=frequency,
             height=height,
             width=width,
-            vsync=vsync,
-            hsync=hsync,
-            de=de,
-            data0=data_r,
-            data1=data_g,
-            data2=data_b,
             logging_enabled=False,
         )
 
@@ -116,16 +109,21 @@ class DVIDriver(CocoTBExtLogger):
         await Timer(int(amount * self.clock_period) / 10, units="ns")
 
     async def _generate_traffic(self):
+        data = [0, 0, 0]
         while True:
             await FallingEdge(self.clk_p)
+
+            data[0] = (self.rgb_in.data.value >> (0 * 8)) & 0xFF
+            data[1] = (self.rgb_in.data.value >> (1 * 8)) & 0xFF
+            data[2] = (self.rgb_in.data.value >> (2 * 8)) & 0xFF
             self.tmds[0].encode(
-                self.rgb_in.data[0].value,
+                data[0],
                 self.rgb_in.de.value,
                 self.rgb_in.vsync.value,
                 self.rgb_in.hsync.value,
             )
-            self.tmds[1].encode(self.rgb_in.data[1].value, self.rgb_in.de.value)
-            self.tmds[2].encode(self.rgb_in.data[2].value, self.rgb_in.de.value)
+            self.tmds[1].encode(data[1], self.rgb_in.de.value)
+            self.tmds[2].encode(data[2], self.rgb_in.de.value)
             for i in range(10):
                 tx = 0
                 for j in range(3):
@@ -136,3 +134,9 @@ class DVIDriver(CocoTBExtLogger):
                     self.queue.put_nowait(tx)
                 if i < 9:
                     await self.wait_10xbit()
+
+    async def await_start(self):
+        await self.rgb_in.await_start()
+
+    async def await_image(self):
+        await self.rgb_in.await_image()

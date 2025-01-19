@@ -1,13 +1,20 @@
 TOPLEVEL_LANG?=verilog
 TOPLEVEL?=dut
-MODULE?=test_dut
+COCOTB_TEST_MODULES?=test_dut
 
-COCOTB_RESOLVE_X?=ZEROS
-export COCOTB_RESOLVE_X
+WAVES?=1
+# ifeq ($(TOPLEVEL_LANG),verilog)
+#     WAVES=1
+# endif
+# ifeq ($(TOPLEVEL_LANG),vhdl)
+#     WAVES=1
+# endif
+# COCOTB_RESOLVE_X?=ZEROS
+# export COCOTB_RESOLVE_X
 
 ifneq (,$(wildcard ./makefile_synth.mak))
 default: vivado_build
-SIM:=icarus
+SIM?=icarus
 else
 default: sim
 endif
@@ -16,18 +23,55 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 include ${WORK_BASE}/rtlflo/xilinx_helper.mak
 include ${WORK_BASE}/rtlflo/verible_helper.mak
 include ${WORK_BASE}/rtlflo/git_helper.mak
+include ${WORK_BASE}/rtlflo/cov_helper.mak
+
+# DEFINES += COCOTB_RUNNING=1
+export COCOTB_RUNNING
+ifeq ($(TOPLEVEL_LANG),verilog)
+	ifeq ($(SIM), icarus)
+        DEFINES += COCOTB_ICARUS=1
+	else ifeq ($(SIM), ius)
+        DEFINES += COCOTB_CADENCE=1
+        DEFINES += COCOTB_IUS=1
+		COMPILE_ARGS += -disable_sem2009
+		COMPILE_ARGS += -sv
+		COMPILE_ARGS += -top ${TOPLEVEL}
+	else ifeq ($(SIM),xcelium)
+        DEFINES += COCOTB_CADENCE=1
+        DEFINES += COCOTB_XCELIUM=1
+		COMPILE_ARGS += -disable_sem2009
+		COMPILE_ARGS += -sv
+		COMPILE_ARGS += -top ${TOPLEVEL}
+	else ifeq ($(SIM),verilator)
+        DEFINES += COCOTB_VERILATOR=1
+		COMPILE_ARGS += --no-timing -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-STMTDLY
+	endif
+endif
+
+ifeq ($(WAVES),1)
+    DEFINES += COCOTB_WAVES=1
+	ifeq ($(SIM),verilator)
+		COCOTB_PLUSARGS += --trace
+		EXTRA_ARGS += --trace # vcd format
+		EXTRA_ARGS += --trace-fst
+		EXTRA_ARGS += --trace-structs
+	else ifeq ($(SIM),ghdl)
+#         SIM_ARGS += --wave=sim_build/${TOPLEVEL}.ghw 
+        SIM_ARGS += --vcd=sim_build/${TOPLEVEL}.vcd 
+	endif
+endif
 
 
 # Process generics
 ifeq ($(TOPLEVEL_LANG),verilog)
 	ifeq ($(SIM), icarus)
-	    COMPILE_ARGS += $(addprefix -P${TOPLEVEL}., $(GENERICS))
+        COMPILE_ARGS += $(addprefix -P${TOPLEVEL}., $(addsuffix ', $(subst =,=', $(GENERICS))))
 	else ifneq ($(filter $(SIM),questa modelsim riviera activehdl),)
 	    SIM_ARGS += $(addprefix -g, $(GENERICS))
 	else ifeq ($(SIM),vcs)
 	    COMPILE_ARGS += $(addprefix -pvalue+/, $(GENERICS))
 	else ifeq ($(SIM),verilator)
-	    COMPILE_ARGS += $(addprefix -G, $(GENERICS))
+        COMPILE_ARGS += $(addprefix -G, $(addsuffix ', $(subst =,=', $(GENERICS))))
 	else ifneq ($(filter $(SIM),ius xcelium),)
 	    EXTRA_ARGS += $(addprefix -defparam ${TOPLEVEL}., $(GENERICS))
 	endif
@@ -51,7 +95,7 @@ ifeq ($(TOPLEVEL_LANG),verilog)
 	else ifeq ($(SIM),vcs)
 	    #COMPILE_ARGS += $(addprefix -pvalue+/, $(GENERICS))
 	else ifeq ($(SIM),verilator)
-	    #COMPILE_ARGS += $(addprefix -G, $(GENERICS))
+	    EXTRA_ARGS += $(addprefix -D, $(DEFINES))
 	else ifneq ($(filter $(SIM),ius xcelium),)
 	    EXTRA_ARGS += $(addprefix -define , $(DEFINES))
 	endif
@@ -65,24 +109,25 @@ else
     $(error "A valid value (verilog or vhdl) was not provided for TOPLEVEL_LANG=$(TOPLEVEL_LANG)")
 endif
 
+VERILOG_DESIGN?=\
+    ${SIM_VERILOG_SOURCES} \
+    ${XILINX_SIM_SOURCES} \
+    ${EXT_VERILOG_SOURCES} \
+    ${INT_VERILOG_SOURCES} 
+
+VERILOG_SOURCES+=\
+    ${VERILOG_DESIGN} \
+
+VHDL_SOURCES+=\
+    ${INT_VHDL_SOURCES} \
+    ${EXT_VHDL_SOURCES}
+    
 ifeq ($(TOPLEVEL_LANG),verilog)
-	ifeq ($(SIM), icarus)
-	    COMPILE_ARGS += -D COCOTB_ICARUS=1
-		WAVES=1
-	else ifeq ($(SIM), ius)
-		COMPILE_ARGS += -disable_sem2009
-		COMPILE_ARGS += -sv
-		COMPILE_ARGS += -top ${TOPLEVEL}
-	else ifeq ($(SIM),xcelium)
-		COMPILE_ARGS += -disable_sem2009
-		COMPILE_ARGS += -sv
-		COMPILE_ARGS += -top ${TOPLEVEL}
-	else ifeq ($(SIM),verilator)
-	    COMPILE_ARGS += -DCOCOTB_VERILATOR=1
-		COMPILE_ARGS += --no-timing -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-STMTDLY
-		EXTRA_ARGS += --trace-fst --trace-structs
-		#SIM_ARGS += --trace 
-	endif
+	VERILOG_SOURCES+=\
+		${COCOTB_SOURCES}
+else
+	VHDL_SOURCES+=\
+		${COCOTB_SOURCES}
 endif
 
 ${CDSLIB}:
@@ -95,13 +140,22 @@ all_libs_clean::
 
 waves:
 ifeq ($(SIM), icarus)
-	gtkwave dut.vcd &
+	surfer sim_build/*.fst &
 else ifeq ($(SIM), ius)
 	simvision -waves waves.shm &
 else ifeq ($(SIM),verilator)
-	gtkwave dump.fst &
+	surfer dump.fst &
+else ifeq ($(SIM),ghdl)
+	gtkwave sim_build/${TOPLEVEL}.vcd &
+# 	ifeq ($(VCD),1)
+# 		gtkwave sim_build/${TOPLEVEL}.ghw &
+# 	else
+# 		surfer sim_build/${TOPLEVEL}.ghw &
+# 	endif
 endif
 
 clean::
-	rm -rf __pycache__/ .simvision/ .Xil/ results.xml *.trn *.dsn vivado* *.vcd *.out irun* simvision* xrun* .bpad/ waves.shm/ *.err INCA_libs/ *.fst* ncvlog.log
+	rm -rf __pycache__/ .simvision/ .Xil/ results.xml *.trn *.dsn vivado* *.vcd *.out \
+		irun* simvision* xrun* .bpad/ waves.shm/ *.err INCA_libs/ *.fst* ncvlog.log \
+		e~${TOPLEVEL}.o ${TOPLEVEL}
 
