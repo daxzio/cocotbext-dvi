@@ -21,11 +21,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
+import cv2 as cv
 
-from .version import __version__
 
-from .dvi_driver import DVIDriver
-from .dvi_sink import DVISink
-from .rgb_driver import RGBDriver
-from .rgb_sink import RGBSink
-from .rgbimage import RGBImage
+class RGBImage:
+    def __init__(self, image_file=None, height=None, width=None):
+        self.image_file = image_file
+        if not image_file is None:
+            self.img = cv.imread(self.image_file, 1)
+#             self._height = self.img.shape[0]
+#             self._width = self.img.shape[1]
+            self.height = self.img.shape[0]
+            self.width = self.img.shape[1]
+        if not height is None:
+            self.height = height
+        if not width is None:
+            self.width = width
+# 
+#     @property
+#     def height(self):
+#         return self._height
+# 
+#     @property
+#     def width(self):
+#         return self._width
+
+    def __getitem__(self, index):
+        return self.img[index]

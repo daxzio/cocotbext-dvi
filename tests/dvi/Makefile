@@ -1,61 +1,74 @@
-# Copyright (c) 2020 Alex Forencich
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+SIM?=icarus
+TOPLEVEL_LANG=verilog
+#XILINX_BASE=${HOME}/projects/XilinxUnisimLibrary
+#XILINX_BASE=${XILINX_VIVADO}/data
+WORK_BASE?=../..
+PROJ_HOME?=../..
+COMPILE_LIBS?=${PROJ_HOME}/libs
+#COMPILE_LIBS?=`readlink -f ${PROJ_HOME}/libs`
+RTLFLO_PATH?=${PROJ_HOME}/rtlflo
+CDSLIB?=./cds_${SIM}.lib
 
-TOPLEVEL_LANG = verilog
+# DUT?=dut
+TOPLEVEL?=dut
+TEST?=${TOPLEVEL}_001
+MODULE?=test_${TEST}
 
-SIM ?= icarus
-WAVES ?= 0
 
-COCOTB_HDL_TIMEUNIT = 1ns
-COCOTB_HDL_TIMEPRECISION = 1ns
+# IMPORT_SOURCES += \
+#     ${PROJ_HOME}/tests/gowin_tb/driver/video_gen.v            \
+#     ${PROJ_HOME}/tests/gowin_tb/driver/video_syntime_config.v \
+#     ${PROJ_HOME}/tests/gowin_tb/driver/video_gen_syn.v        \
+#     ${PROJ_HOME}/tests/gowin_tb/driver/video_gen_data.v       \
+#     ${PROJ_HOME}/tests/gowin_tb/driver/driver.sv \
+# 
+# GOWIN_SOURCES += \
+#    ${PROJ_HOME}/tests/gowin_project/src/dvi_tx/dvi_tx_vo.v
 
-DUT      = test_i2c
-TOPLEVEL = $(DUT)
-MODULE   = $(DUT)
-VERILOG_SOURCES += $(DUT).v
+# VHDL_LIB_ORDER += \
+#     UNISIM
+# 
+# VHDL_SOURCES_UNISIM += \
+#     /opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/unisim_VPKG.vhd \
+#     /opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/unisim_VCOMP.vhd \
+# 	/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/primitive/IBUFDS.vhd \
+# 	/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/primitive/IDELAYE2.vhd \
+# 	/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/secureip/ISERDESE2.vhd \
+# 
+# VHDL_SOURCES += \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/DVI_Constants.vhd  \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/SyncAsync.vhd      \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/SyncAsyncReset.vhd \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/SyncBase.vhd       \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/InputSERDES.vhd    \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/GlitchFilter.vhd   \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/TWI_SlaveCtl.vhd   \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/PhaseAlign.vhd     \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/ChannelBond.vhd    \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/TMDS_Decoder.vhd   \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/TMDS_Clocking.vhd  \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/ResyncToBUFG.vhd   \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/EEPROM_8b.vhd      \
+#     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/dvi2rgb.vhd        \
+#     ${PROJ_HOME}/tests/digilent-rgb2dvi/src/TMDS_Encoder.vhd   \
+#     ${PROJ_HOME}/tests/digilent-rgb2dvi/src/OutputSERDES.vhd   \
+#     ${PROJ_HOME}/tests/digilent-rgb2dvi/src/ClockGen.vhd       \
+#     ${PROJ_HOME}/tests/digilent-rgb2dvi/src/rgb2dvi.vhd
 
-ifeq ($(SIM), icarus)
-	PLUSARGS += -fst
+# VHDL_SOURCES += \
+#     ${PROJ_HOME}/tests/dvi/${TEST}.vhd
+  
+    
+#RTL_SOURCES += \
 
-	ifeq ($(WAVES), 1)
-		VERILOG_SOURCES += iverilog_dump.v
-		COMPILE_ARGS += -s iverilog_dump
-	endif
-else ifeq ($(SIM), verilator)
-	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH
+DUT_SOURCES = \
+    ${PROJ_HOME}/tests/dvi/vcd_dump.sv \
+    ${PROJ_HOME}/tests/dvi/${TEST}.sv
 
-	ifeq ($(WAVES), 1)
-		COMPILE_ARGS += --trace-fst
-	endif
-endif
+VERILOG_DESIGN += ${XILINX_IP_SOURCES} ${RTL_SOURCES} ${SIM_SOURCES} ${IMPORT_SOURCES}
 
-include $(shell cocotb-config --makefiles)/Makefile.sim
+VERILOG_SOURCES = \
+    ${VERILOG_DESIGN} \
+    ${DUT_SOURCES}
 
-iverilog_dump.v:
-	echo 'module iverilog_dump();' > $@
-	echo 'initial begin' >> $@
-	echo '    $$dumpfile("$(TOPLEVEL).fst");' >> $@
-	echo '    $$dumpvars(0, $(TOPLEVEL));' >> $@
-	echo 'end' >> $@
-	echo 'endmodule' >> $@
-
-clean::
-	@rm -rf iverilog_dump.v
-	@rm -rf dump.fst $(TOPLEVEL).fst
+include ${WORK_BASE}/rtlflo/cocotb_helper.mak

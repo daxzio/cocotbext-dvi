@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Daxzio
+Copyright (c) 2023 Dave Keeshan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
+from cocotb.handle import ModifiableObject
 
-from .version import __version__
 
-from .dvi_driver import DVIDriver
-from .dvi_sink import DVISink
-from .rgb_driver import RGBDriver
-from .rgb_sink import RGBSink
-from .rgbimage import RGBImage
+class SignalOrVariable:
+    def __init__(self, signal=None):
+        if signal is None:
+            self.signal = False
+        else:
+            self.signal = signal
+
+    def setimmediatevalue(self, value):
+        if isinstance(self.signal, ModifiableObject):
+            self.signal.setimmediatevalue(value)
+        else:
+            self.signal = value
+
+    @property
+    def value(self):
+        if isinstance(self.signal, ModifiableObject):
+            return self.signal.value
+        else:
+            return self.signal
+
+    @value.setter
+    def value(self, value):
+        if isinstance(self.signal, ModifiableObject):
+            self.signal.value = value
+        else:
+            self.signal = value

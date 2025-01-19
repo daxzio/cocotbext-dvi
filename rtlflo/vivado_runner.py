@@ -23,7 +23,7 @@ class vivado_runner:
         self.implname = "impl_1"
         self.bitstream = f"{self.dir}/{self.name}.runs/{self.implname}/{self.project.synth_top}.bit"
         self.vivado_rev = os.environ["XILINX_REV"]
-        self.vivado_rev_short = re.sub("\..+", "", self.vivado_rev)
+        self.vivado_rev_short = re.sub(r"\..+", "", self.vivado_rev)
         
 
         self.unique_id = None

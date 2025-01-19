@@ -6,13 +6,13 @@ import yaml
 import json
 
 def replaceEnvironVar(x):
-    h = re.findall("\${(\w+)}", x)
+    h = re.findall(r"\${(\w+)}", x)
     for g in h:
         if not g in os.environ.keys():
             raise Exception(f"Environments variable: ${g} not set")
         y = os.environ[g]
         y = re.sub('\\\\', "/", y)
-        x = re.sub(f"\${{{g}}}", y, x)
+        x = re.sub(f"\\${{{g}}}", y, x)
     return x
 
 class rtlFile:
@@ -188,7 +188,7 @@ class parseProject:
         return files
 
     def readYaml(self):
-        with open(self.config_yml, 'r') as f:
+        with open(self.config_yml) as f:
             config = yaml.safe_load(f)
         for attr, value in config.items():
             if not hasattr(self, attr):
@@ -196,7 +196,7 @@ class parseProject:
             setattr(self, attr, value)
             
     def readJson(self):
-        with open(self.config_json, 'r') as f:
+        with open(self.config_json) as f:
             config = json.load(f)
         for attr, value in config.items():
             if not hasattr(self, attr):

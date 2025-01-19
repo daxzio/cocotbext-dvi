@@ -19,7 +19,7 @@
 
 module video_gen_data
 (
-  input            link_i    ,  //0,单像素；1，双像素
+  input            link_i    ,  //
   input            repeat_en ,  //0:bmp increase  , 1:bmp repeat
   input            en_i      ,  //module enable, 0:disable 1:enbale
   input            pclk_i    ,  //pixel clock                      
@@ -114,9 +114,9 @@ begin
   else if (de_i==1'b1)
     begin
       if(link_i) 
-        address_cnt<=address_cnt+2'd2;   //双像素模式，每次加2 
+        address_cnt<=address_cnt+2'd2;  
       else
-        address_cnt<=address_cnt+1'b1;   //单像素模式，每次加1 
+        address_cnt<=address_cnt+1'b1;  
     end
 end
   
@@ -217,7 +217,7 @@ task bmp2mem_24b;
         begin
         for (i=0;i<54;i=i+1)
             begin
-            fscanf_ptr=$fscanf (infile_ptr,"%c",inbmp_htr[i]);//获取bmp位图文件头
+            fscanf_ptr=$fscanf (infile_ptr,"%c",inbmp_htr[i]);
             end
         
         file_identity={inbmp_htr[1],inbmp_htr[0]};
@@ -236,11 +236,9 @@ task bmp2mem_24b;
         colors={inbmp_htr[49],inbmp_htr[48],inbmp_htr[47],inbmp_htr[46]}; 
         important={inbmp_htr[53],inbmp_htr[52],inbmp_htr[51],inbmp_htr[50]}; 
       
-        fseek_ptr=$fseek(infile_ptr,bitmap_data_offset,0);//设置文件指针偏移 
-        fread_ptr=$fread(bmp_data_reg,infile_ptr);//从偏移地址开始读取位图数据    
+        fseek_ptr=$fseek(infile_ptr,bitmap_data_offset,0);
+        fread_ptr=$fread(bmp_data_reg,infile_ptr);    
 
-        //bmp是倒序存储，先存储最后一行，但每行内部是按顺序的
-        //以下将图像顺序倒转
         for (i=0;i<VER_RESOLUTION;i=i+1)
             for (j=0;j<(HOR_RESOLUTION*3+HOR_RESOLUTION*3%4);j=j+1)
             bmp_data[i*(HOR_RESOLUTION*3+HOR_RESOLUTION*3%4)+j]=bmp_data_reg[(VER_RESOLUTION-i-1)*(HOR_RESOLUTION*3+HOR_RESOLUTION*3%4)+j];

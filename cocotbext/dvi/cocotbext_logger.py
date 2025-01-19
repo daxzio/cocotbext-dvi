@@ -21,11 +21,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
+import logging
 
-from .version import __version__
 
-from .dvi_driver import DVIDriver
-from .dvi_sink import DVISink
-from .rgb_driver import RGBDriver
-from .rgb_sink import RGBSink
-from .rgbimage import RGBImage
+class CocoTBExtLogger:
+    def __init__(self, name="default", enable=True):
+        self.name = name
+        self.log = logging.getLogger(f"cocotb.{self.name}")
+        if enable:
+            self.enable_logging()
+
+    def enable_logging(self):
+        self.log.setLevel(logging.DEBUG)
+
+    def disable_logging(self):
+        self.log.setLevel(logging.WARNING)
