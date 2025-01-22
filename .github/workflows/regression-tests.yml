@@ -58,6 +58,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+      - name: Compile Unisim
+        run: |
+          make gpg_untar PASSPHRASE=${{ secrets.PASSPHRASE }}
+          make compile_unisim
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
