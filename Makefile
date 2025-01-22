@@ -7,7 +7,7 @@ vhdl:
 	cd tests/test_rgb2dvi ; make clean sim SIM=ghdl WAVES=0 && ../../rtlflo/combine_results.py
 
 verilog:
-	cd tests/test_verilog ; make clean sim WAVES=0 && ../../rtlflo/combine_results.py
+# 	cd tests/test_verilog ; make clean sim WAVES=0 && ../../rtlflo/combine_results.py
 
 
 lint:

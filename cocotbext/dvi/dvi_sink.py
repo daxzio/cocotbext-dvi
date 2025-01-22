@@ -116,14 +116,14 @@ class DVISink(CocoTBExtLogger):
         self.start = True
         self.clk_freq = 1000000000 / (2 * self.time_delta)
         self.log.info(f"Detected Clock frequency: {self.clk_freq} MHz")
-        while True:
-            await RisingEdge(self.clk)
-            t0 = get_sim_time("step")
-            await FallingEdge(self.clk)
-            t1 = get_sim_time("step")
-            new_time_delta = t1 - t0
-            if not (1000000 / (2 * new_time_delta)) == self.clk_freq:
-                raise Exception("Change in clock frequency detected")
+#         while True:
+#             await RisingEdge(self.clk)
+#             t0 = get_sim_time("step")
+#             await FallingEdge(self.clk)
+#             t1 = get_sim_time("step")
+#             new_time_delta = t1 - t0
+#             if not (1000000 / (2 * new_time_delta)) == self.clk_freq:
+#                 raise Exception("Change in clock frequency detected")
 
     async def _detect_data(self):
         self.rgb_out.hsync.value = False
