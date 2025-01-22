@@ -1,3 +1,6 @@
 cocotb
 cocotb-bus
-cocotbext-daxzio
+pytest
+pyflakes
+ruff
+mypy
