@@ -1,7 +1,7 @@
 SIM?=ghdl
 TOPLEVEL_LANG=vhdl
 PROJ_HOME?=..
-WORK_BASE?=${PROJ_HOME}
+WORK_BASE?=../..
 
 TOPLEVEL = dut
 MODULE = test_${TOPLEVEL}
