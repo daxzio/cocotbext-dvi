@@ -80,7 +80,7 @@ class RGBDriver(CocoTBExtLogger):
 
         self.vsync_cnt = 0
         self.hsync_cnt = 0
-        
+
         self.map = {
             0: 0,
             1: 1,

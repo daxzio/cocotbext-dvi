@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
+
 import logging
 
 from cocotb.triggers import RisingEdge, FallingEdge
@@ -113,10 +114,12 @@ class RGBFrame(CocoTBExtLogger):
                 expected_value = self.img[self.y][self.x][key]
                 test_value = (value >> (8 * key)) & 0xFF
                 if not test_value == expected_value:
-                    print(f"Expected value 0x{expected_value:02x} does not match Detected 0x{test_value:02x} - [{self.y}][{self.x}][{key}]")
-#                     raise Exception(
-#                         f"Expected value 0x{expected_value:02x} does not match Detected 0x{test_value:02x} - [{self.y}][{self.x}][{key}]"
-#                     )
+                    print(
+                        f"Expected value 0x{expected_value:02x} does not match Detected 0x{test_value:02x} - [{self.y}][{self.x}][{key}]"
+                    )
+            #                     raise Exception(
+            #                         f"Expected value 0x{expected_value:02x} does not match Detected 0x{test_value:02x} - [{self.y}][{self.x}][{key}]"
+            #                     )
             if self.x < self.img.width - 1:
                 self.x += 1
             else:
@@ -296,9 +299,9 @@ class RGBSink(CocoTBExtLogger):
                             <= (self.expected_frequency + 2)
                         ):
                             pass
-#                             raise Exception(
-#                                 f"Doesn't match expected frequency {self.expected_frequency} Hz"
-#                             )
+                #                             raise Exception(
+                #                                 f"Doesn't match expected frequency {self.expected_frequency} Hz"
+                #                             )
 
                 if sync_cnt > 2:
                     if not (t_last - self.clk_time) <= t2 <= (t_last + self.clk_time):

@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
+
 import logging
 
 from cocotb.triggers import RisingEdge, FallingEdge, Timer
@@ -121,8 +122,8 @@ class DVISink(CocoTBExtLogger):
             await FallingEdge(self.clk)
             t1 = get_sim_time("step")
             new_time_delta = t1 - t0
-#             if not (1000000 / (2 * new_time_delta)) == self.clk_freq:
-#                 raise Exception("Change in clock frequency detected")
+            if not (1000000 / (2 * new_time_delta)) == self.clk_freq:
+                raise Exception("Change in clock frequency detected")
 
     async def _detect_data(self):
         self.rgb_out.hsync.value = False
