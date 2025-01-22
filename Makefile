@@ -62,7 +62,7 @@ gpg_untar:
 	@cd tests ; rm -rf vhdl_src vhdl_src.tgz ; gpg --output vhdl_src.tgz --decrypt --batch  --passphrase ${PASSPHRASE} vhdl_src.tgz.gpg
 	cd tests ; tar -xvf vhdl_src.tgz
 
-compile_unisim: gpg_untar
+compile_unisim:
 	rm -rf ./tests/xilinx-vivado.2024.2
 	mkdir -p ./tests/xilinx-vivado.2024.2/unisim/v93
 	ghdl -a --mb-comments -fexplicit -Whide -Wbinding --ieee=synopsys --no-vital-checks --std=93c -frelaxed \
