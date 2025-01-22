@@ -11,12 +11,12 @@ from cocotbext.dvi import DVISink
 from cocotbext.dvi import RGBBus
 from cocotbext.dvi import RGBDriver
 from cocotbext.dvi import RGBSink
-from cocotbext.daxzio import detect_clk
 
 from cocotb_bus.bus import Bus
 
 from interfaces.clkrst import Clk
 from interfaces.clkrst import Reset
+from interfaces.detect_clk import detect_clk
 
 class testbench:
     def __init__(self, dut):

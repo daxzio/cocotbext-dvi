@@ -7,9 +7,9 @@ from cocotbext.dvi import RGBDriver
 from cocotbext.dvi import RGBSink
 from cocotbext.dvi import RGBBus
 from cocotbext.dvi import DVIBus
-from cocotbext.daxzio import detect_clk
 
 from interfaces.clkrst import Clk
+from interfaces.detect_clk import detect_clk
 
 
 class testbench:
