@@ -182,7 +182,7 @@ class RGBDriver(CocoTBExtLogger):
                     self.log.warning(
                         f"Last frames is not complete, frequency is too fast, {self.frequency} Hz"
                     )
-                self.log.info(f"Sync edge detected, {get_sim_time("step")}")
+                self.log.info(f"Sync edge detected, {get_sim_time('step')}")
                 self.sync_edge = 1
             sync_last = self.sync.sync.value
 
