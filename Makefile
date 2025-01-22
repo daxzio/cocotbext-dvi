@@ -1,4 +1,5 @@
 SIM?=icarus
+PASSPHRASE?=12345678
 
 default: verilog vhdl
 
@@ -50,19 +51,30 @@ git_align:
 	rsync -artu --exclude .git repos/vivado-library/ip/rgb2dvi/src/ tests/rtl/rgb2dvi
 	rsync -artu --exclude .git tests/rtl/rgb2dvi/ repos/vivado-library/ip/rgb2dvi/src
 
-compile_unisim:
-	rm -rf /mnt/sda/projects/cocotbext-dvi/tests/xilinx-vivado.2024.2
-	mkdir -p /mnt/sda/projects/cocotbext-dvi/tests/xilinx-vivado.2024.2/unisim/v93
+gpg_tar:
+	rm -rf tests/vhdl_src.tgz.gpg
+	cd repos ; tar -cvf ../vhdl_src.tgz vhdl_src/
+	@gpg --symmetric --cipher-algo aes256 --batch --passphrase ${PASSPHRASE} vhdl_src.tgz
+	mv vhdl_src.tgz.gpg tests/.
+	rm -rf vhdl_src.tgz*
+
+gpg_untar:
+	@cd tests ; rm -rf vhdl_src vhdl_src.tgz ; gpg --output vhdl_src.tgz --decrypt --batch  --passphrase ${PASSPHRASE} vhdl_src.tgz.gpg
+	cd tests ; tar -xvf vhdl_src.tgz
+
+compile_unisim: gpg_untar
+	rm -rf ./tests/xilinx-vivado.2024.2
+	mkdir -p ./tests/xilinx-vivado.2024.2/unisim/v93
 	ghdl -a --mb-comments -fexplicit -Whide -Wbinding --ieee=synopsys --no-vital-checks --std=93c -frelaxed \
-		-P/mnt/sda/projects/cocotbext-dvi/tests/xilinx-vivado.2024.2 \
+		-P./tests/xilinx-vivado.2024.2 \
 		-v \
 		--work=unisim \
-		--workdir=/mnt/sda/projects/cocotbext-dvi/tests/xilinx-vivado.2024.2/unisim/v93 \
-			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/unisim_VPKG.vhd" \
-			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/unisim_retarget_VCOMP.vhd" \
-			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/MMCME2_ADV.vhd" \
-			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/BUFIO.vhd" \
-			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/BUFR.vhd" \
-			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/PLLE2_ADV.vhd" \
-			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/OBUFDS.vhd"\
-			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/OSERDESE1.vhd"
+		--workdir=./tests/xilinx-vivado.2024.2/unisim/v93 \
+			"./tests/vhdl_src/unisim_VPKG.vhd" \
+			"./tests/vhdl_src/unisim_retarget_VCOMP.vhd" \
+			"./tests/vhdl_src/MMCME2_ADV.vhd" \
+			"./tests/vhdl_src/BUFIO.vhd" \
+			"./tests/vhdl_src/BUFR.vhd" \
+			"./tests/vhdl_src/PLLE2_ADV.vhd" \
+			"./tests/vhdl_src/OBUFDS.vhd"\
+			"./tests/vhdl_src/OSERDESE1.vhd"

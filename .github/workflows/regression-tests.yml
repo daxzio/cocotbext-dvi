@@ -75,7 +75,7 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
     runs-on: ubuntu-latest
     needs: [run_lint, build_iverilog_linux]
-
+        
     steps:
       - uses: actions/checkout@v3
       - name: Report Environment
@@ -107,6 +107,10 @@ jobs:
           python -m pip install --upgrade git+https://github.com/cocotb/cocotb.git
           python -m pip install --upgrade git+https://github.com/cocotb/cocotb-bus.git
           python -m pip install .
+      - name: Compile Unisim
+        run: |
+          make gpg_untar PASSPHRASE=${{ secrets.PASSPHRASE }}
+          make compile_unisim
       - name: Run Tests
         run: |
           make
