@@ -76,7 +76,7 @@ end OutputSERDES;
 architecture Behavioral of OutputSERDES is
 
 signal sDataOut, ocascade1, ocascade2 : std_logic;
-signal pDataOut_q : std_logic_vector(13 downto 0);
+signal pDataOut_q : std_logic_vector(9 downto 0);
 begin
 
 -- Differential output buffer for TMDS I/O standard 
@@ -195,12 +195,12 @@ OutputBuffer: OBUFDS
         WC                => '0',
         CLK               => SerialClk,
         CLKDIV            => PixelClk,
-        D1                => pDataOut_q(0),
-        D2                => pDataOut_q(1),
-        D3                => pDataOut_q(2),
-        D4                => pDataOut_q(3),
-        D5                => pDataOut_q(4),
-        D6                => pDataOut_q(5),
+        D1                => pDataOut_q(9),
+        D2                => pDataOut_q(8),
+        D3                => pDataOut_q(7),
+        D4                => pDataOut_q(6),
+        D5                => pDataOut_q(5),
+        D6                => pDataOut_q(4),
         TCE               => '0',
         OCE               => '1',
         RST               => aRst,
@@ -234,10 +234,10 @@ OutputBuffer: OBUFDS
         CLKDIV            => PixelClk,
         D1                => '0',
         D2                => '0',
-        D3                => pDataOut_q(6),
-        D4                => pDataOut_q(7),
-        D5                => pDataOut_q(8),
-        D6                => pDataOut_q(9),
+        D3                => pDataOut_q(3),
+        D4                => pDataOut_q(2),
+        D5                => pDataOut_q(1),
+        D6                => pDataOut_q(0),
         TCE               => '0',
         OCE               => '1',
         RST               => aRst,
@@ -247,7 +247,9 @@ OutputBuffer: OBUFDS
         T2                => '0',
         T3                => '0',
         T4                => '0'
-    );------------------------------------------------------------- 
+    );
+    
+------------------------------------------------------------- 
 -- Concatenate the serdes inputs together. Keep the timesliced
 -- bits together, and placing the earliest bits on the right
 -- ie, if data comes in 0, 1, 2, 3, 4, 5, 6, 7, ...
@@ -256,10 +258,10 @@ OutputBuffer: OBUFDS
 SliceOSERDES_q: for slice_count in 0 to kParallelWidth-1 generate begin
    --DVI sends least significant bit first 
    --OSERDESE2 sends D1 bit first
-   pDataOut_q(14-slice_count-1) <= pDataOut(slice_count);
+   pDataOut_q(10-slice_count-1) <= pDataOut(slice_count);
 end generate SliceOSERDES_q;
-pDataOut_q(0) <= '0' ;
-pDataOut_q(1) <= '0' ;
-pDataOut_q(2) <= '0' ;
-pDataOut_q(3) <= '0' ;
+-- pDataOut_q(0) <= '0' ;
+-- pDataOut_q(1) <= '0' ;
+-- pDataOut_q(2) <= '0' ;
+-- pDataOut_q(3) <= '0' ;
 end Behavioral;

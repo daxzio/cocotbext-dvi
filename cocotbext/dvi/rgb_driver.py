@@ -80,6 +80,12 @@ class RGBDriver(CocoTBExtLogger):
 
         self.vsync_cnt = 0
         self.hsync_cnt = 0
+        
+        self.map = {
+            0: 0,
+            1: 1,
+            2: 2,
+        }
 
         self._restart()
 
@@ -120,9 +126,9 @@ class RGBDriver(CocoTBExtLogger):
                 self.de.value = False
             else:
                 self.de.value = True
-                x = int(self.img[row_cnt, col_cnt, 0])
-                y = int(self.img[row_cnt, col_cnt, 1])
-                z = int(self.img[row_cnt, col_cnt, 2])
+                x = int(self.img[row_cnt, col_cnt, self.map[0]])
+                y = int(self.img[row_cnt, col_cnt, self.map[1]])
+                z = int(self.img[row_cnt, col_cnt, self.map[2]])
                 data = x + (y << 8) + (z << 16)
                 self.data.value = data
                 if col_cnt == self.img.width - 1:

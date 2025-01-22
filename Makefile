@@ -4,12 +4,11 @@ default: verilog vhdl
 
 vhdl:
 	cd tests/test_vhdl ; make clean sim SIM=ghdl WAVES=0 && ../../rtlflo/combine_results.py
+	cd tests/test_rgb2dvi ; make clean sim SIM=ghdl WAVES=0 && ../../rtlflo/combine_results.py
 
 verilog:
-	cd tests/test001 ; make clean sim WAVES=0 && ../../rtlflo/combine_results.py
-	cd tests/test002 ; make clean sim WAVES=0 && ../../rtlflo/combine_results.py
-	cd tests/test003 ; make clean sim WAVES=0 && ../../rtlflo/combine_results.py
-	cd tests/hazard3 ; make clean sim WAVES=0 && ../../rtlflo/combine_results.py
+	cd tests/test_verilog ; make clean sim WAVES=0 && ../../rtlflo/combine_results.py
+
 
 lint:
 	pyflakes cocotbext
@@ -50,3 +49,20 @@ git_align:
 	rsync -artu --exclude .git tests/rtl/dvi2rgb/ repos/vivado-library/ip/dvi2rgb/src
 	rsync -artu --exclude .git repos/vivado-library/ip/rgb2dvi/src/ tests/rtl/rgb2dvi
 	rsync -artu --exclude .git tests/rtl/rgb2dvi/ repos/vivado-library/ip/rgb2dvi/src
+
+compile_unisim:
+	rm -rf /mnt/sda/projects/cocotbext-dvi/tests/xilinx-vivado.2024.2
+	mkdir -p /mnt/sda/projects/cocotbext-dvi/tests/xilinx-vivado.2024.2/unisim/v93
+	ghdl -a --mb-comments -fexplicit -Whide -Wbinding --ieee=synopsys --no-vital-checks --std=93c -frelaxed \
+		-P/mnt/sda/projects/cocotbext-dvi/tests/xilinx-vivado.2024.2 \
+		-v \
+		--work=unisim \
+		--workdir=/mnt/sda/projects/cocotbext-dvi/tests/xilinx-vivado.2024.2/unisim/v93 \
+			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/unisim_VPKG.vhd" \
+			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/unisim_retarget_VCOMP.vhd" \
+			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/MMCME2_ADV.vhd" \
+			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/BUFIO.vhd" \
+			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/BUFR.vhd" \
+			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/PLLE2_ADV.vhd" \
+			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/OBUFDS.vhd"\
+			"/mnt/sda/xilinx/Vivado/2024.2/data/vhdl/src/unisims/primitive/OSERDESE1.vhd"
