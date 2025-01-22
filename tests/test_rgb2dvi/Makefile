@@ -1,6 +1,6 @@
 SIM?=ghdl
 TOPLEVEL_LANG=vhdl
-PROJ_HOME?=..
+PROJ_HOME?=../..
 WORK_BASE?=../..
 
 TOPLEVEL = dut
