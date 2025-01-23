@@ -19,7 +19,7 @@ Installation for active development:
 
 ## Documentation and usage examples
 
-See the `tests` directory and [verilog-i2c](https://github.com/daxzio/verilog-i2c) for complete testbenches using these modules.
+See the `tests` directory for complete testbenches using these modules.
 
         image_file = "/home/dkeeshan/projects/cocotbext-dvi/tests/images/160x120.bmp"
         self.dvi_in = DVIDriver(dut, image_file)
