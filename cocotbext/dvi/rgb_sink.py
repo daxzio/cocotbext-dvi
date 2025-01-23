@@ -285,7 +285,7 @@ class RGBSink(CocoTBExtLogger):
                 t0 = get_sim_time("fs")
                 t2 = t0 - t1
                 if sync_cnt > 1:
-                    self.log.debug(f"Sync edge detected, {get_sim_time('step')}")
+                    self.log.debug(f"Sync edge detected, {get_sim_time('fs')}")
                 if sync_cnt == 2:
                     self.measure_frequency = 1e15 / t2
                     self.log.info(f"Measured Frequency: {self.measure_frequency} Hz")

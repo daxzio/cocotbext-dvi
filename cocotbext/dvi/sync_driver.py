@@ -43,7 +43,6 @@ class syncDriver:
         await Timer(v0_delay, units="ns")
         while True:
             self.sync.value = 1
-            #             t0 = get_sim_time("step")
             await Timer(v1_delay, units="ns")
             self.sync.value = 0
             await Timer(v2_delay, units="ns")

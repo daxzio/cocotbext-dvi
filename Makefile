@@ -28,7 +28,7 @@ dist:
 	rm -rf CHANGELOG.txt
 	python setup.py sdist
 
-GIT_TAG?=0.0.1
+GIT_TAG?=0.1.0
 VERSION_FILE?=`find . -name version.py`
 release:
 	echo "Release v${GIT_TAG}"
