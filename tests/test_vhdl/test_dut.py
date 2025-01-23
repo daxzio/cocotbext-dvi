@@ -1,5 +1,6 @@
 from cocotb import start_soon
 from cocotb import test
+from cocotb.triggers import Timer
 
 from cocotbext.dvi import DVIDriver
 from cocotbext.dvi import DVISink
@@ -18,7 +19,11 @@ class testbench:
         self.clk = Clk(dut, period, units="ns", clkname="PixelClk")
 
         start_soon(detect_clk(self.clk.clk, "pixelclk", 25))
-
+        start_soon(self.timeout())
+    
+    async def timeout(self, time=5000000, units='ns'):
+        await Timer(time, units)
+        raise Exception(f'Timeout occurred! {time} {units}')
 
 @test()
 async def test_rgb(dut):

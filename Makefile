@@ -1,14 +1,14 @@
 SIM?=icarus
 PASSPHRASE?=12345678
 
-default: verilog vhdl
+default: vhdl verilog
 
 vhdl:
 	cd tests/test_vhdl ; make clean sim SIM=ghdl WAVES=0 && ../../rtlflo/combine_results.py
 	cd tests/test_rgb2dvi ; make clean sim SIM=ghdl WAVES=0 && ../../rtlflo/combine_results.py
 
 verilog:
-# 	cd tests/test_verilog ; make clean sim WAVES=0 && ../../rtlflo/combine_results.py
+	cd tests/test_verilog ; make clean sim WAVES=0 && ../../rtlflo/combine_results.py
 
 
 lint:
@@ -60,7 +60,7 @@ gpg_tar:
 
 gpg_untar:
 	@cd tests ; rm -rf vhdl_src vhdl_src.tgz ; gpg --output vhdl_src.tgz --decrypt --batch  --passphrase ${PASSPHRASE} vhdl_src.tgz.gpg
-	cd tests ; tar -xvf vhdl_src.tgz
+	@cd tests ; tar -xf vhdl_src.tgz
 
 compile_unisim:
 	rm -rf ./tests/xilinx-vivado.2024.2

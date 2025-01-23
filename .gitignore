@@ -11,3 +11,8 @@ results.xml
 *.egg-info/
 *.vcd
 *.fst
+.passphrase
+combined_results.xml
+*.o
+tests/xilinx-vivado*/
+tests/vhdl_src/

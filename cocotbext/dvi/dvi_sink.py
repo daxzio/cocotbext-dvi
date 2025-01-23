@@ -100,7 +100,7 @@ class DVISink(CocoTBExtLogger):
         self.rgb_out.verify_start = value
 
     async def wait_bit(self, amount=1.0):
-        await Timer(int(amount * self.time_delta) / 5, units="step")
+        await Timer(int(amount * self.time_delta) / 5, units="fs")
 
     def _restart(self):
         start_soon(self._detect_clk())
@@ -113,17 +113,21 @@ class DVISink(CocoTBExtLogger):
         await FallingEdge(self.clk)
         t1 = get_sim_time("fs")
         self.time_delta = t1 - t0
+
         self.start = True
         self.clk_freq = 1000000000 / (2 * self.time_delta)
         self.log.info(f"Detected Clock frequency: {self.clk_freq} MHz")
-#         while True:
-#             await RisingEdge(self.clk)
-#             t0 = get_sim_time("step")
-#             await FallingEdge(self.clk)
-#             t1 = get_sim_time("step")
-#             new_time_delta = t1 - t0
-#             if not (1000000 / (2 * new_time_delta)) == self.clk_freq:
-#                 raise Exception("Change in clock frequency detected")
+        while True:
+            await RisingEdge(self.clk)
+            t0 = get_sim_time("fs")
+            await FallingEdge(self.clk)
+            t1 = get_sim_time("fs")
+            new_time_delta = t1 - t0
+            new_freq = 1000000000 / (2 * new_time_delta)
+            if not new_freq == self.clk_freq:
+                raise Exception(
+                    f"Change in clock frequency detected {new_freq} {self.clk_freq}"
+                )
 
     async def _detect_data(self):
         self.rgb_out.hsync.value = False

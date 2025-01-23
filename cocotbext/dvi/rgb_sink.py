@@ -114,12 +114,9 @@ class RGBFrame(CocoTBExtLogger):
                 expected_value = self.img[self.y][self.x][key]
                 test_value = (value >> (8 * key)) & 0xFF
                 if not test_value == expected_value:
-                    print(
+                    raise Exception(
                         f"Expected value 0x{expected_value:02x} does not match Detected 0x{test_value:02x} - [{self.y}][{self.x}][{key}]"
                     )
-            #                     raise Exception(
-            #                         f"Expected value 0x{expected_value:02x} does not match Detected 0x{test_value:02x} - [{self.y}][{self.x}][{key}]"
-            #                     )
             if self.x < self.img.width - 1:
                 self.x += 1
             else:
