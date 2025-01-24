@@ -140,7 +140,7 @@ class DVISink(CocoTBExtLogger):
                 self.tmdsin = [0, 0, 0]
                 for i in range(10):
                     for j, _ in enumerate(self.tmdsin):
-                        self.tmdsin[j] |= int((self.data.value >> j) & 0x1) << i
+                        self.tmdsin[j] |= ((int(self.data.value) >> j) & 0x1) << i
                     if i < 9:
                         await self.wait_bit()
 
@@ -160,7 +160,7 @@ class DVISink(CocoTBExtLogger):
         self.vsync_last = False
         while True:
             await FallingEdge(self.clk)
-            self.frame_complete = not (self.rgb_out.vsync) and self.vsync_last
+            self.frame_complete = not (self.rgb_out.vsync.value) and self.vsync_last
             self.vsync_last = self.rgb_out.vsync
 
     async def frame_finished(self):

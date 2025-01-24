@@ -1,6 +1,6 @@
 """
 
-Copyright (c) 2023 Dave Keeshan
+Copyright (c) 2023-2025 Dave Keeshan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,37 +22,29 @@ THE SOFTWARE.
 
 """
 
-from cocotb.handle import ModifiableObject
+try:
+    #     from cocotb.handle import LogicObject
+    from cocotb.handle import LogicArrayObject
+except ImportError:
+    #     from cocotb.handle import ModifiableObject as LogicObject
+    from cocotb.handle import ModifiableObject as LogicArrayObject
 
 
-class DiffModifiableObject(ModifiableObject):
+class DiffLogicArrayObject(LogicArrayObject):
     def __init__(self, p, n):
-        ModifiableObject.__init__(self, p._handle, p._path)
-        self.n = ModifiableObject(n._handle, n._path)
+        LogicArrayObject.__init__(self, p._handle, p._path)
+        self.n = LogicArrayObject(n._handle, n._path)
         self.mask = (1 << len(self)) - 1
 
     def __setitem__(self, index, value):
-        ModifiableObject.__setitem__(self, index, value)
+        raise Exception("Packed arrays are going away")
+        LogicArrayObject.__setitem__(self, index, value)
         self.n[index].value = not (bool(value))
 
-    def _set_value(self, value, call_sim):
-        ModifiableObject._set_value(self, value, call_sim)
-        self.n._set_value(value ^ self.mask, call_sim)
-
-
-#         print(value)
-#         self.n.value = value ^ self.mask
-#     def setimmediatevalue(self, value):
-#         ModifiableObject.setimmediatevalue(self, value)
-#         self.n.setimmediatevalue(value ^ self.mask)
-
-
-#
-#     @ModifiableObject.value.setter
-#     def value(self, value):
-#         self._set_value(value, cocotb.scheduler._schedule_write)
-#         self.n.value = value ^ self.mask
-
-
-#     def __getitem__(self, key):
-#         return self._arr[key]
+    def _set_value(self, value, action, schedule_write=None):
+        try:
+            LogicArrayObject._set_value(self, value, action, schedule_write)
+            self.n._set_value(value ^ self.mask, action, schedule_write)
+        except TypeError:
+            LogicArrayObject._set_value(self, value, action)
+            self.n._set_value(value ^ self.mask, action)

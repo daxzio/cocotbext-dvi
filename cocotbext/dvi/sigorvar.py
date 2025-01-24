@@ -22,7 +22,12 @@ THE SOFTWARE.
 
 """
 
-from cocotb.handle import ModifiableObject
+try:
+    from cocotb.handle import LogicObject
+    from cocotb.handle import LogicArrayObject
+except ImportError:
+    from cocotb.handle import ModifiableObject as LogicObject
+    from cocotb.handle import ModifiableObject as LogicArrayObject
 
 
 class SignalOrVariable:
@@ -32,22 +37,20 @@ class SignalOrVariable:
         else:
             self.signal = signal
 
-    def setimmediatevalue(self, value):
-        if isinstance(self.signal, ModifiableObject):
-            self.signal.setimmediatevalue(value)
-        else:
-            self.signal = value
-
     @property
     def value(self):
-        if isinstance(self.signal, ModifiableObject):
+        if isinstance(self.signal, LogicArrayObject) or isinstance(
+            self.signal, LogicObject
+        ):
             return self.signal.value
         else:
             return self.signal
 
     @value.setter
     def value(self, value):
-        if isinstance(self.signal, ModifiableObject):
+        if isinstance(self.signal, LogicArrayObject) or isinstance(
+            self.signal, LogicObject
+        ):
             self.signal.value = value
         else:
             self.signal = value

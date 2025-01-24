@@ -112,7 +112,7 @@ class RGBFrame(CocoTBExtLogger):
                 raise Exception("No image was defined to verify against!")
             for key in range(3):
                 expected_value = self.img[self.y][self.x][key]
-                test_value = (value >> (8 * key)) & 0xFF
+                test_value = (int(value) >> (8 * key)) & 0xFF
                 if not test_value == expected_value:
                     raise Exception(
                         f"Expected value 0x{expected_value:02x} does not match Detected 0x{test_value:02x} - [{self.y}][{self.x}][{key}]"

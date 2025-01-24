@@ -21,6 +21,8 @@ mypy:
 format:
 	black cocotbext
 
+black: format
+
 checks: format lint mypy
 
 dist:

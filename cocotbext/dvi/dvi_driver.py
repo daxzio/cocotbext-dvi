@@ -29,7 +29,7 @@ from cocotb.queue import Queue
 from .version import __version__
 from .cocotbext_logger import CocoTBExtLogger
 from .diffclock import DiffClock
-from .diffobject import DiffModifiableObject
+from .diffobject import DiffLogicArrayObject
 from .rgb_driver import RGBDriver
 from .tmds import TMDS
 from .rgb_bus import DummyRGBBus
@@ -83,8 +83,8 @@ class DVIDriver(CocoTBExtLogger):
             logging_enabled=False,
         )
 
-        self.data = DiffModifiableObject(self.data_p, self.data_n)
-        self.data.setimmediatevalue(0)
+        self.data = DiffLogicArrayObject(self.data_p, self.data_n)
+        self.data.value = 0
 
         start_soon(
             DiffClock(self.clk_p, self.clk_n, self.clock_period, units="ns").start(
@@ -113,9 +113,9 @@ class DVIDriver(CocoTBExtLogger):
         while True:
             await FallingEdge(self.clk_p)
 
-            data[0] = (self.rgb_in.data.value >> (0 * 8)) & 0xFF
-            data[1] = (self.rgb_in.data.value >> (1 * 8)) & 0xFF
-            data[2] = (self.rgb_in.data.value >> (2 * 8)) & 0xFF
+            data[0] = (int(self.rgb_in.data.value) >> (0 * 8)) & 0xFF
+            data[1] = (int(self.rgb_in.data.value) >> (1 * 8)) & 0xFF
+            data[2] = (int(self.rgb_in.data.value) >> (2 * 8)) & 0xFF
             self.tmds[0].encode(
                 data[0],
                 self.rgb_in.de.value,
