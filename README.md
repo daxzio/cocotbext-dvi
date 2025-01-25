@@ -1,5 +1,9 @@
 # DVI and RGB interface modules for Cocotb
 
+[![Build Status](https://github.com/daxzio/cocotbext-dvi/actions/workflows/regression-tests.yml/badge.svg?branch=main)](https://github.com/daxzio/cocotbext-dvi/actions/)
+[![PyPI version](https://badge.fury.io/py/cocotbext-dvi.svg)](https://pypi.org/project/cocotbext-dvi)
+[![Downloads](https://pepy.tech/badge/cocotbext-dvi)](https://pepy.tech/project/cocotbext-dvi)
+
 GitHub repository: https://github.com/daxzio/cocotbext-dvi
 
 ## Introduction
@@ -7,6 +11,10 @@ GitHub repository: https://github.com/daxzio/cocotbext-dvi
 DVI and RGB simulation models for [cocotb](https://github.com/cocotb/cocotb).
 
 ## Installation
+
+Installation from pip (release version, stable):
+
+    $ pip install cocotbext-dvi
 
 Installation from git (latest development version, potentially unstable):
 
@@ -50,8 +58,6 @@ The `RGBBus` is used to map to a RGB interface on the `dut`.  These hold instanc
 
 ```python
     from cocotbext.dvi import RGBBus
-    
-    
     rgb_in_bus = RGBBus.from_prefix(dut, prefix="vid_in")
 ```
 
