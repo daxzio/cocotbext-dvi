@@ -39,7 +39,7 @@ class RGBDriver(CocoTBExtLogger):
         self,
         clk,
         bus,
-        image_file=None,
+        image_file,
         frequency=60,
         height=None,
         width=None,
@@ -63,7 +63,6 @@ class RGBDriver(CocoTBExtLogger):
         self.frequency = frequency
         self.offset_start = 20
         self.sync_edge = 0
-        #         self.sync = syncDriver(None, frequency=self.frequency, offset_start=200000)
         self.sync = syncDriver(
             None, frequency=self.frequency, offset_start=self.offset_start
         )
@@ -113,7 +112,7 @@ class RGBDriver(CocoTBExtLogger):
                 break
         while True:
             await RisingEdge(self.clk)
-            self.data.value = 0
+            data = 0
             hsync_offset = vsync_indent + 1 + dimesion_delta
             if self.hsync_cnt < hsync_offset or self.hsync_cnt >= (
                 hsync_offset + self.img.height
@@ -130,12 +129,12 @@ class RGBDriver(CocoTBExtLogger):
                 y = int(self.img[row_cnt, col_cnt, self.map[1]])
                 z = int(self.img[row_cnt, col_cnt, self.map[2]])
                 data = x + (y << 8) + (z << 16)
-                self.data.value = data
                 if col_cnt == self.img.width - 1:
                     col_cnt = 0
                     row_cnt = (row_cnt + 1) % self.img.height
                 else:
                     col_cnt += 1
+            self.data.value = data
 
             if (self.vsync_cnt % hsync_width) < 4:
                 self.hsync.value = False
@@ -192,8 +191,11 @@ class RGBDriver(CocoTBExtLogger):
             if not 0 == self.vsync_cnt or not 0 == self.hsync_cnt:
                 return
 
-    async def await_image(self):
+    async def await_image(self, num=1):
+        cnt = 0
         while True:
             await RisingEdge(self.clk)
             if 0 == self.vsync_cnt and 0 == self.hsync_cnt:
-                return
+                cnt += 1
+                if cnt == num:
+                    return

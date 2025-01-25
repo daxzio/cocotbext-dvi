@@ -35,7 +35,7 @@ VERSION_FILE?=`find . -name version.py`
 release:
 	echo "Release v${GIT_TAG}"
 # 	@grep -Po '\d\.\d\.\d' cocotbext/jtag/version.py
-	git tag v${GIT_TAG} || { echo "make release GIT_TAG=0.0.5"; git tag ; exit 1; }
+	git tag v${GIT_TAG} || { echo "make release GIT_TAG=0.1.0"; git tag ; exit 1; }
 	echo "__version__ = \"${GIT_TAG}\"" > ${VERSION_FILE}
 	git add ${VERSION_FILE}
 	git commit --allow-empty -m "Update to version ${GIT_TAG}"

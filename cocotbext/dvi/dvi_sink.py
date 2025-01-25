@@ -163,8 +163,8 @@ class DVISink(CocoTBExtLogger):
             self.frame_complete = not (self.rgb_out.vsync.value) and self.vsync_last
             self.vsync_last = self.rgb_out.vsync
 
-    async def frame_finished(self):
-        await self.rgb_out.frame_finished()
+    async def frame_finished(self, num=1):
+        await self.rgb_out.frame_finished(num)
 
 
 #     def report_frame(self):
