@@ -265,13 +265,6 @@ class RGBSink(CocoTBExtLogger):
             self.hsync_last = self.hsync.value
             self.vsync_last = self.vsync.value
 
-    async def frame_finished(self):
-        while True:
-            await RisingEdge(self.clk)
-            if self.frame_complete:
-                self.log.debug("Frame finished detected")
-                break
-
     async def _edge_sync(self):
         sync_last = 0
         sync_cnt = 0
@@ -307,3 +300,13 @@ class RGBSink(CocoTBExtLogger):
             sync_last = self.vsync.value
             t1 = t0
             t_last = t2
+
+    async def frame_finished(self, num=1):
+        cnt = 0
+        while True:
+            await RisingEdge(self.clk)
+            if self.frame_complete:
+                self.log.debug("Frame finished detected")
+                cnt += 1
+                if cnt == num:
+                    return

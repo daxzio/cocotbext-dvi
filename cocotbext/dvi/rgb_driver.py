@@ -39,7 +39,7 @@ class RGBDriver(CocoTBExtLogger):
         self,
         clk,
         bus,
-        image_file=None,
+        image_file,
         frequency=60,
         height=None,
         width=None,
@@ -191,8 +191,11 @@ class RGBDriver(CocoTBExtLogger):
             if not 0 == self.vsync_cnt or not 0 == self.hsync_cnt:
                 return
 
-    async def await_image(self):
+    async def await_image(self, num=1):
+        cnt = 0
         while True:
             await RisingEdge(self.clk)
             if 0 == self.vsync_cnt and 0 == self.hsync_cnt:
-                return
+                cnt += 1
+                if cnt == num:
+                    return

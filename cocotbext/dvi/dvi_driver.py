@@ -138,5 +138,5 @@ class DVIDriver(CocoTBExtLogger):
     async def await_start(self):
         await self.rgb_in.await_start()
 
-    async def await_image(self):
-        await self.rgb_in.await_image()
+    async def await_image(self, num):
+        await self.rgb_in.await_image(num)
