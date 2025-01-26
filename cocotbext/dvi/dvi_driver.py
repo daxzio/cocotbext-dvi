@@ -44,8 +44,8 @@ class DVIDriver(CocoTBExtLogger):
         image_file=None,
         frequency=60,
         clk_freq=25.0,
-        height=None,
-        width=None,
+        height=-1,
+        width=-1,
     ):
         logging_enabled = True
         CocoTBExtLogger.__init__(self, type(self).__name__, logging_enabled)

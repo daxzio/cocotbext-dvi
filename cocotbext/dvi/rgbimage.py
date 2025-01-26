@@ -27,7 +27,7 @@ import cv2 as cv
 
 
 class RGBImage:
-    def __init__(self, image_file=None, height=None, width=None):
+    def __init__(self, image_file=None, height=-1, width=-1):
         self.image_file = image_file
         if isinstance(self.image_file, str) and not os.path.isfile(self.image_file):
             raise Exception(f"Unknown file {self.image_file}")
@@ -35,9 +35,9 @@ class RGBImage:
             self.img = cv.imread(self.image_file, 1)
             self.height = self.img.shape[0]
             self.width = self.img.shape[1]
-        if height is not None:
+        if not -1 == height:
             self.height = height
-        if width is not None:
+        if not -1 == width:
             self.width = width
 
     def __getitem__(self, index):

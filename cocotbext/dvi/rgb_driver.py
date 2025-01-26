@@ -41,8 +41,8 @@ class RGBDriver(CocoTBExtLogger):
         bus,
         image_file,
         frequency=60,
-        height=None,
-        width=None,
+        height=-1,
+        width=-1,
         logging_enabled=True,
     ):
         CocoTBExtLogger.__init__(self, type(self).__name__, logging_enabled)
