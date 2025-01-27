@@ -56,7 +56,7 @@ class testbench:
             "de":    "w_de",
             "data":  "w_data",
         }
-        self.rgb_out_bus = RGBBus(dut, signals=signals_out)
+#         self.rgb_out_bus = RGBBus(dut, signals=signals_out)
 #         self.rgb_out = RGBSink(
 #             self.clk.clk,
 #             self.rgb_out_bus,
@@ -75,7 +75,7 @@ class testbench:
         self.dvi_out = DVISink(        
             dut,
             self.dvi_out_bus,
-            rgb_bus=self.rgb_out_bus,
+#             rgb_bus=self.rgb_out_bus,
             image_file="./images/320x240.bmp",
             expected_frequency=1600,
             height=20

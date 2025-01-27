@@ -65,18 +65,20 @@ gpg_untar:
 	@cd tests ; tar -xf vhdl_src.tgz
 
 compile_unisim:
-	rm -rf ./tests/xilinx-vivado.2024.2
-	mkdir -p ./tests/xilinx-vivado.2024.2/unisim/v93
-	ghdl -a --mb-comments -fexplicit -Whide -Wbinding --ieee=synopsys --no-vital-checks --std=93c -frelaxed \
-		-P./tests/xilinx-vivado.2024.2 \
-		-v \
+	rm -rf ./tests/xilinx-vivado
+	mkdir -p ./tests/xilinx-vivado/unisim/v93
+	mkdir -p ./tests/xilinx-vivado/unisim/v08
+	@ghdl -a --mb-comments -fexplicit -Whide -Wbinding --ieee=synopsys --no-vital-checks --std=93c -frelaxed \
+		-P./tests/xilinx-vivado \
 		--work=unisim \
-		--workdir=./tests/xilinx-vivado.2024.2/unisim/v93 \
-			"./tests/vhdl_src/unisim_VPKG.vhd" \
-			"./tests/vhdl_src/unisim_retarget_VCOMP.vhd" \
-			"./tests/vhdl_src/MMCME2_ADV.vhd" \
-			"./tests/vhdl_src/BUFIO.vhd" \
-			"./tests/vhdl_src/BUFR.vhd" \
-			"./tests/vhdl_src/PLLE2_ADV.vhd" \
-			"./tests/vhdl_src/OBUFDS.vhd"\
-			"./tests/vhdl_src/OSERDESE1.vhd"
+		--workdir=./tests/xilinx-vivado/unisim/v93 \
+			./tests/vhdl_src/unisim_VPKG.vhd \
+			./tests/vhdl_src/unisim_retarget_VCOMP.vhd \
+			./tests/vhdl_src/primitives/*.vhd
+# 	@ghdl -a --mb-comments -fexplicit -Whide -Wbinding --ieee=synopsys --no-vital-checks --std=08 -frelaxed \
+# 		-P./tests/xilinx-vivado \
+# 		--work=unisim \
+# 		--workdir=./tests/xilinx-vivado/unisim/v93 \
+# 			./tests/vhdl_src/unisim_VPKG.vhd \
+# 			./tests/vhdl_src/unisim_retarget_VCOMP.vhd \
+# 			./tests/vhdl_src/primitives/*.vhd
