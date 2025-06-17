@@ -39,6 +39,7 @@ class vivado_helper:
                 self.include_dirs.append(x.rstrip().lstrip())
 
         self.generics = os.environ["GENERICS"].rstrip().split()
+        self.defines = os.environ["DEFINES"].rstrip().split()
 
         self.prj = Project("vivado", self.buildname)
 
@@ -54,6 +55,10 @@ class vivado_helper:
         for generic in self.generics:
             g = generic.split("=")
             self.prj.set_param(g[0], g[1])
+
+        if len(self.defines) > 0:
+            defines = " ".join(self.defines)
+            self.prj.add_hook(f"set_property verilog_define {{{defines}}} [current_fileset]")
 
         for constraint in self.constraints:
             c = constraint.split(",")

@@ -147,6 +147,7 @@ vivado_build:
 	export BUILD_NAME=${BUILD_NAME} ; \
 	export VERILOG_INCLUDE_DIRS="${VERILOG_INCLUDE_DIRS}" ; \
 	export GENERICS="${GENERICS}" ; \
+	export DEFINES="${DEFINES}" ; \
 	export FPGA_DESIGN="${FPGA_DESIGN}" ; \
 		${RTLFLO_PATH}/vivado_helper.py
     
