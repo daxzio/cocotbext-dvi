@@ -8,8 +8,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2014 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -25,14 +25,14 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
@@ -42,7 +42,7 @@
 -- serial clock from the TMDS Clock pins to be used for deserializing the TMDS
 -- Data channels. Connect this module directly to the top-level TMDS Clock pins
 -- and a 200/300 MHz reference clock.
---  
+--
 -------------------------------------------------------------------------------
 
 
@@ -70,7 +70,7 @@ entity TMDS_Clocking is
       SerialClk : out std_logic;
       PixelClk : out std_logic;
       aLocked : out std_logic;
-      
+
       dbg_rDlyRst : out std_logic;
       dbg_rRdyRst : out std_logic;
       dbg_rMMCM_Reset : out std_logic;
@@ -121,12 +121,12 @@ begin
       end if;
    end if;
 end process;
-    
+
 IDelayCtrlX: IDELAYCTRL
    port map (
       RDY         => aDlyLckd,
       REFCLK      => RefClk,
-      RST         => rDlyRst);   
+      RST         => rDlyRst);
 
 RdyLostReset: entity work.ResetBridge
    generic map (
@@ -135,10 +135,10 @@ RdyLostReset: entity work.ResetBridge
       aRst => not aDlyLckd,
       OutClk => RefClk,
       oRst => rRdyRst);
-      
+
 InputBuffer: IBUFDS
    generic map (
-      DIFF_TERM => FALSE, -- Differential Termination 
+      DIFF_TERM => FALSE, -- Differential Termination
       IBUF_LOW_PWR => TRUE, -- Low power (TRUE) vs. performance (FALSE) setting for referenced I/O standards
       IOSTANDARD => "TMDS_33")
    port map
@@ -146,7 +146,7 @@ InputBuffer: IBUFDS
       O => CLK_IN_hdmi_clk,
       I => TMDS_Clk_p,
       IB => TMDS_Clk_n);
-      
+
 -- The TMDS Clk channel carries a character-rate frequency reference
 -- In a single Clk period a whole character (10 bits) is transmitted
 -- on each data channel. For deserialization of data channel a faster,
@@ -244,15 +244,15 @@ SerialClkBuffer: BUFIO
 -- 1x slow parallel clock
 PixelClkBuffer: BUFR
    generic map (
-      BUFR_DIVIDE => "5",   -- Values: "BYPASS, 1, 2, 3, 4, 5, 6, 7, 8" 
-      SIM_DEVICE => "7SERIES"  -- Must be set to "7SERIES" 
+      BUFR_DIVIDE => "5",   -- Values: "BYPASS, 1, 2, 3, 4, 5, 6, 7, 8"
+      SIM_DEVICE => "7SERIES"  -- Must be set to "7SERIES"
    )
    port map (
       O => PixelClk,     -- 1-bit output: Clock output port
       CE => '1',   -- 1-bit input: Active high, clock enable (Divided modes only)
-      CLR => rBUFR_Rst, -- 1-bit input: Active high, asynchronous clear (Divided modes only)        
+      CLR => rBUFR_Rst, -- 1-bit input: Active high, asynchronous clear (Divided modes only)
       I => CLK_OUT_5x_hdmi_clk      -- 1-bit input: Clock buffer input driven by an IBUF, MMCM or local interconnect
-   );     
+   );
 rBUFR_Rst <= rMMCM_LckdRisingFlag; --pulse CLR on BUFR once the clock returns
 
 MMCM_Reset: process(rLockLostRst, RefClk)
@@ -265,7 +265,7 @@ begin
       else
           rMMCM_Reset_q <= '0' & rMMCM_Reset_q(rMMCM_Reset_q'high downto 1);
       end if;
-   end if; 
+   end if;
 end process MMCM_Reset;
 
 MMCM_LockSync: entity work.SyncAsync
@@ -274,7 +274,7 @@ MMCM_LockSync: entity work.SyncAsync
       aIn => aMMCM_Locked,
       OutClk => RefClk,
       oOut => rMMCM_Locked);
-      
+
 MMCM_LockedDetect: process(RefClk)
 begin
    if Rising_Edge(RefClk) then

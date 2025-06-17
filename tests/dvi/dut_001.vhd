@@ -5,15 +5,15 @@ use work.DVI_Constants.all;
 
 entity dut is
    Generic (
-      kEmulateDDC : boolean := true; --will emulate a DDC EEPROM with basic EDID, if set to yes 
+      kEmulateDDC : boolean := true; --will emulate a DDC EEPROM with basic EDID, if set to yes
       kRstActiveHigh : boolean := true; --true, if active-high; false, if active-low
-      kAddBUFG : boolean := true; --true, if PixelClk should be re-buffered with BUFG 
+      kAddBUFG : boolean := true; --true, if PixelClk should be re-buffered with BUFG
       kClkRange : natural := 2;  -- MULT_F = kClkRange*5 (choose >=120MHz=1, >=60MHz=2, >=40MHz=3)
       kEdidFileName : string := "dgl_720p_cea.data";  -- Select EDID file to use
       kDebug : boolean := true;
       -- 7-series specific
       kIDLY_TapValuePs : natural := 78; --delay in ps per tap
-      kIDLY_TapWidth : natural := 5); --number of bits for IDELAYE2 tap counter   
+      kIDLY_TapWidth : natural := 5); --number of bits for IDELAYE2 tap counter
    Port (
       clk  : in std_logic
       ;reset : in std_logic
@@ -31,15 +31,15 @@ end ;
 
 architecture testbench of dut is
 begin
-  
+
    i_dvi2rgb: entity work.dvi2rgb
       generic map (
          kDebug => false
          ,kEmulateDDC => false
          )
       port map (
-          TMDS_Clk_p     => tmds_in_clk_p 
-         ,TMDS_Clk_n     => tmds_in_clk_n 
+          TMDS_Clk_p     => tmds_in_clk_p
+         ,TMDS_Clk_n     => tmds_in_clk_n
          ,TMDS_Data_p    => tmds_in_data_p
          ,TMDS_Data_n    => tmds_in_data_n
          ,RefClk         => clk_200

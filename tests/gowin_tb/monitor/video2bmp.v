@@ -1,21 +1,21 @@
-//=======================================================================================================================  
-// File     : video2bmp.v                                                                                              
-// Author   :                                                                                                    
-//                                                                                                     //                  
-// Abstract : Extract the data in one flame from the input 24-bit-rgb video,                                               
-//            and then write them in a bmp file                                                                            
-//                                                                                                                         
-//            Pixels arranged in accordance with the order of each row and column,The number of bytes in each row must be  
-//            integer multiples of 4, the insufficient part must be filled with 0. In the case of '1366x768', each line    
-//            of the original number of bytes is 4098, which is not integer multiples of 4. So we need to fill 2 words of  
-//            '0' to make the number of bytes in each row up to 4100.                                                      
-//                                                                                                                         
-//                                                                                                                         
-// Modification History                                                                                                    
-//=======================================================================================================================              
-//  Date          | Version|  Author    | Change Description                                                                           
 //=======================================================================================================================
-//=======================================================================================================================              
+// File     : video2bmp.v
+// Author   :
+//                                                                                                     //
+// Abstract : Extract the data in one flame from the input 24-bit-rgb video,
+//            and then write them in a bmp file
+//
+//            Pixels arranged in accordance with the order of each row and column,The number of bytes in each row must be
+//            integer multiples of 4, the insufficient part must be filled with 0. In the case of '1366x768', each line
+//            of the original number of bytes is 4098, which is not integer multiples of 4. So we need to fill 2 words of
+//            '0' to make the number of bytes in each row up to 4100.
+//
+//
+// Modification History
+//=======================================================================================================================
+//  Date          | Version|  Author    | Change Description
+//=======================================================================================================================
+//=======================================================================================================================
 
 `timescale 1ns / 1ps
 
@@ -167,14 +167,14 @@ begin
           data_r_i_mem[data_mem_addr+1'b1] = data1_r_i;
           data_g_i_mem[data_mem_addr+1'b1] = data1_g_i;
           data_b_i_mem[data_mem_addr+1'b1] = data1_b_i;
-          data_mem_addr = data_mem_addr +2'd2;   
+          data_mem_addr = data_mem_addr +2'd2;
         end
       else
         begin
           data_r_i_mem[data_mem_addr]      =data0_r_i;
           data_g_i_mem[data_mem_addr]      =data0_g_i;
           data_b_i_mem[data_mem_addr]      =data0_b_i;
-          data_mem_addr = data_mem_addr +1'b1;  
+          data_mem_addr = data_mem_addr +1'b1;
         end
     end
 end
@@ -221,7 +221,7 @@ always @ (posedge pclk_i)
         for (i=0;i<(BMP_OUTPUTED_WIDTH*3+BMP_OUTPUTED_WIDTH*3%4)*BMP_OUTPUTED_HEIGHT;i=i+1)
             $fwrite(img_resp_ptr, "%c", data_bmp_mem[i]);
 
-        $fclose(img_resp_ptr); 
+        $fclose(img_resp_ptr);
         $display("** %m: Write bmp file completely, at time %0t",$time);
         $display(" ");
         end
@@ -245,102 +245,102 @@ always @ (posedge pclk_i or negedge en_i)
 /*******************************************task: write_bmp_pre********************************************/
 task write_bmp_pre_rgb_24b;
   input[31:0] width;
-  input[31:0] height;      
+  input[31:0] height;
   input[319:0] filename; //character string, the name (except the postfix ".bmp") can not longer than 36 characters //40 Bytes
-  
+
   integer i;
-  
+
   begin
   bitmap_data_size = (width*2'b11+(width*2'b11)%4) * height;
   file_size = bitmap_data_size+8'd54;
-  
-  img_resp_ptr = 0;  
-  
+
+  img_resp_ptr = 0;
+
   /////14bytes   bitmapfileheader
   //bftype
-  bmp_hdr[0]=8'h42;                                       
-  bmp_hdr[1]=8'h4D;                                       
+  bmp_hdr[0]=8'h42;
+  bmp_hdr[1]=8'h4D;
   //bfsize
   bmp_hdr[2]=file_size[7:0];
   bmp_hdr[3]=file_size[15:8];
   bmp_hdr[4]=file_size[23:16];
   bmp_hdr[5]=file_size[31:24];
   //bfreserved
-  bmp_hdr[6]=8'h00;                                       
-  bmp_hdr[7]=8'h00;                                       
-  bmp_hdr[8]=8'h00;                                       
-  bmp_hdr[9]=8'h00;                                       
+  bmp_hdr[6]=8'h00;
+  bmp_hdr[7]=8'h00;
+  bmp_hdr[8]=8'h00;
+  bmp_hdr[9]=8'h00;
   //bf offset size
   bmp_hdr[10]=8'h36;  //offset of imgage width, 8'd54
-  bmp_hdr[11]=8'h00;                                      
-  bmp_hdr[12]=8'h00;                                      
-  bmp_hdr[13]=8'h00;                                      
+  bmp_hdr[11]=8'h00;
+  bmp_hdr[12]=8'h00;
+  bmp_hdr[13]=8'h00;
   /////40bytes bitmapinfoheader
   //bytesize of bitmapinfoheader
   bmp_hdr[14]=8'h28;   //unique bytes
-  bmp_hdr[15]=8'h00;                                      
-  bmp_hdr[16]=8'h00;                                      
-  bmp_hdr[17]=8'h00;                                      
-  //width                                                   
+  bmp_hdr[15]=8'h00;
+  bmp_hdr[16]=8'h00;
+  bmp_hdr[17]=8'h00;
+  //width
   bmp_hdr[18]=width[7:0];    //image width low8
   bmp_hdr[19]=width[15:8];   //image width high8
-  bmp_hdr[20]=width[23:16];                                  
-  bmp_hdr[21]=width[31:24];                                  
-  //height                                                  
+  bmp_hdr[20]=width[23:16];
+  bmp_hdr[21]=width[31:24];
+  //height
   bmp_hdr[22]=height[7:0];   //image height low8
   bmp_hdr[23]=height[15:8];  //image height high8
-  bmp_hdr[24]=height[23:16];                                 
-  bmp_hdr[25]=height[31:24];                                 
-  //biplanes                                                  
-  bmp_hdr[26]=8'h01;                                        
-  bmp_hdr[27]=8'h00;                                        
+  bmp_hdr[24]=height[23:16];
+  bmp_hdr[25]=height[31:24];
+  //biplanes
+  bmp_hdr[26]=8'h01;
+  bmp_hdr[27]=8'h00;
   //bitcount,value = 1,4,8,24,32
-  bmp_hdr[28]=8'h18;                                        
-  bmp_hdr[29]=8'h00;                                        
+  bmp_hdr[28]=8'h18;
+  bmp_hdr[29]=8'h00;
   //compression stratege, value=0,1,2,3.0,is non-conpressed
   bmp_hdr[30]=8'h00;   //compressed specification
-  bmp_hdr[31]=8'h00;                                        
-  bmp_hdr[32]=8'h00;                                        
-  bmp_hdr[33]=8'h00;                                        
+  bmp_hdr[31]=8'h00;
+  bmp_hdr[32]=8'h00;
+  bmp_hdr[33]=8'h00;
   //size of image = width'*height, width = 4* num
-  bmp_hdr[34]=bitmap_data_size[7:0];    //size of image      
-  bmp_hdr[35]=bitmap_data_size[15:8];                                
-  bmp_hdr[36]=bitmap_data_size[23:16];                               
-  bmp_hdr[37]=bitmap_data_size[31:24];                               
+  bmp_hdr[34]=bitmap_data_size[7:0];    //size of image
+  bmp_hdr[35]=bitmap_data_size[15:8];
+  bmp_hdr[36]=bitmap_data_size[23:16];
+  bmp_hdr[37]=bitmap_data_size[31:24];
   //xpelpermeter of monitor
-  bmp_hdr[38]=8'h00;                                        
-  bmp_hdr[39]=8'h00;                                        
-  bmp_hdr[40]=8'h00;                                        
-  bmp_hdr[41]=8'h00;                                        
+  bmp_hdr[38]=8'h00;
+  bmp_hdr[39]=8'h00;
+  bmp_hdr[40]=8'h00;
+  bmp_hdr[41]=8'h00;
   //ypelpermeter of monitor
-  bmp_hdr[42]=8'h00;                                        
-  bmp_hdr[43]=8'h00;                                        
-  bmp_hdr[44]=8'h00;                                        
-  bmp_hdr[45]=8'h00;                                        
+  bmp_hdr[42]=8'h00;
+  bmp_hdr[43]=8'h00;
+  bmp_hdr[44]=8'h00;
+  bmp_hdr[45]=8'h00;
   //biclrused
-  bmp_hdr[46]=8'h00;                                        
-  bmp_hdr[47]=8'h00;                                        
-  bmp_hdr[48]=8'h00;                                        
-  bmp_hdr[49]=8'h00;                                        
+  bmp_hdr[46]=8'h00;
+  bmp_hdr[47]=8'h00;
+  bmp_hdr[48]=8'h00;
+  bmp_hdr[49]=8'h00;
   //biclrimportant
-  bmp_hdr[50]=8'h00;                                        
-  bmp_hdr[51]=8'h00;                                        
-  bmp_hdr[52]=8'h00;                                        
+  bmp_hdr[50]=8'h00;
+  bmp_hdr[51]=8'h00;
+  bmp_hdr[52]=8'h00;
   bmp_hdr[53]=8'h00;
-  
-  img_resp_ptr = $fopen(filename, "wb");   
-       
-  if (img_resp_ptr == 0)   
+
+  img_resp_ptr = $fopen(filename, "wb");
+
+  if (img_resp_ptr == 0)
       begin
-      $display("** %m: ERROR: Can't find the bmp file");                      
-      $stop;                     
-      end   
+      $display("** %m: ERROR: Can't find the bmp file");
+      $stop;
+      end
   else
-      begin               
-      for(i=0; i<54; i=i+1)   
-          begin                       
-          $fwrite(img_resp_ptr, "%c", bmp_hdr[i]);  
-          end          
+      begin
+      for(i=0; i<54; i=i+1)
+          begin
+          $fwrite(img_resp_ptr, "%c", bmp_hdr[i]);
+          end
       end
   end
 endtask

@@ -8,8 +8,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2015 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -25,14 +25,14 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
@@ -40,8 +40,8 @@
 -- Purpose:
 -- This module inserts a BUFG on the PixelClk path so that the pixel bus can be
 -- routed globally on the device. It also synchronizes data to the new BUFG
--- clock. 
---  
+-- clock.
+--
 -------------------------------------------------------------------------------
 
 
@@ -95,7 +95,7 @@ begin
       poData <= piData;
       poVDE <= piVDE;
       poHSync <= piHSync;
-      poVSync <= piVSync; 
+      poVSync <= piVSync;
    end if;
 end process RegisterData;
 

@@ -18,9 +18,9 @@ VHDL_SOURCES+=\
 COCOTB_SOURCES = \
 #     ./dut.vhd
 
-COMPILE_ARGS+=-fsynopsys -fexplicit 
-COMPILE_ARGS+=-Whide 
-# COMPILE_ARGS+=--std=08 
+COMPILE_ARGS+=-fsynopsys -fexplicit
+COMPILE_ARGS+=-Whide
+# COMPILE_ARGS+=--std=08
 
 
 GENERICS = \

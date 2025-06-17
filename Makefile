@@ -26,7 +26,7 @@ black: format
 checks: format lint mypy
 
 dist:
-	rm -rf MANIFEST 
+	rm -rf MANIFEST
 	rm -rf CHANGELOG.txt
 	python setup.py sdist
 

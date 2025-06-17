@@ -8,8 +8,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2014 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -25,22 +25,22 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
 --
 -- Purpose:
 -- This module instantiates the Xilinx 7-series primitives necessary for
--- serializing the TMDS data stream. 
---  
+-- serializing the TMDS data stream.
+--
 -------------------------------------------------------------------------------
 
 
@@ -62,14 +62,14 @@ entity OutputSERDES is
    Port (
       PixelClk : in STD_LOGIC;   --TMDS clock x1 (CLKDIV)
       SerialClk : in STD_LOGIC;  --TMDS clock x5 (CLK)
-      
+
       --Encoded serial data
       sDataOut_p : out STD_LOGIC;
       sDataOut_n : out STD_LOGIC;
-      
+
       --Encoded parallel data (raw)
       pDataOut : in STD_LOGIC_VECTOR (kParallelWidth-1 downto 0);
-      
+
       aRst : in STD_LOGIC);
 end OutputSERDES;
 
@@ -79,7 +79,7 @@ signal sDataOut, ocascade1, ocascade2 : std_logic;
 signal pDataOut_q : std_logic_vector(9 downto 0);
 begin
 
--- Differential output buffer for TMDS I/O standard 
+-- Differential output buffer for TMDS I/O standard
 OutputBuffer: OBUFDS
    generic map (
       IOSTANDARD => "TMDS_33")
@@ -95,7 +95,7 @@ OutputBuffer: OBUFDS
 --       DATA_RATE_TQ      => "SDR",
 --       DATA_WIDTH        => kParallelWidth,
 --       TRISTATE_WIDTH    => 1,
---       TBYTE_CTL         => "FALSE", 
+--       TBYTE_CTL         => "FALSE",
 --       TBYTE_SRC         => "FALSE",
 --       SERDES_MODE       => "MASTER")
 --    port map (
@@ -130,15 +130,15 @@ OutputBuffer: OBUFDS
 --       T4                => '0',
 --       TBYTEIN           => '0',     -- 1-bit input: Byte group tristate
 --       TCE               => '0'              -- 1-bit input: 3-state clock enable
---     );   
---    
+--     );
+--
 -- SerializerSlave: OSERDESE2
 --    generic map (
 --       DATA_RATE_OQ      => "DDR",
 --       DATA_RATE_TQ      => "SDR",
 --       DATA_WIDTH        => kParallelWidth,
 --       TRISTATE_WIDTH    => 1,
---       TBYTE_CTL         => "FALSE", 
+--       TBYTE_CTL         => "FALSE",
 --       TBYTE_SRC         => "FALSE",
 --       SERDES_MODE       => "SLAVE")
 --    port map (
@@ -173,7 +173,7 @@ OutputBuffer: OBUFDS
 --       T4                => '0',
 --       TBYTEIN           => '0',     -- 1-bit input: Byte group tristate
 --       TCE               => '0'              -- 1-bit input: 3-state clock enable
---     );      
+--     );
 
     SerializerMaster : OSERDESE1
     generic map (
@@ -248,15 +248,15 @@ OutputBuffer: OBUFDS
         T3                => '0',
         T4                => '0'
     );
-    
-------------------------------------------------------------- 
+
+-------------------------------------------------------------
 -- Concatenate the serdes inputs together. Keep the timesliced
 -- bits together, and placing the earliest bits on the right
 -- ie, if data comes in 0, 1, 2, 3, 4, 5, 6, 7, ...
 -- the output will be 3210, 7654, ...
--------------------------------------------------------------   
+-------------------------------------------------------------
 SliceOSERDES_q: for slice_count in 0 to kParallelWidth-1 generate begin
-   --DVI sends least significant bit first 
+   --DVI sends least significant bit first
    --OSERDESE2 sends D1 bit first
    pDataOut_q(10-slice_count-1) <= pDataOut(slice_count);
 end generate SliceOSERDES_q;

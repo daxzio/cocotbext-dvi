@@ -21,20 +21,20 @@ MODULE?=test_${TEST}
 #     ${PROJ_HOME}/tests/gowin_tb/driver/video_gen_syn.v        \
 #     ${PROJ_HOME}/tests/gowin_tb/driver/video_gen_data.v       \
 #     ${PROJ_HOME}/tests/gowin_tb/driver/driver.sv \
-# 
+#
 # GOWIN_SOURCES += \
 #    ${PROJ_HOME}/tests/gowin_project/src/dvi_tx/dvi_tx_vo.v
 
 # VHDL_LIB_ORDER += \
 #     UNISIM
-# 
+#
 # VHDL_SOURCES_UNISIM += \
 #     /opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/unisim_VPKG.vhd \
 #     /opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/unisim_VCOMP.vhd \
 # 	/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/primitive/IBUFDS.vhd \
 # 	/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/primitive/IDELAYE2.vhd \
 # 	/opt/tools/redhat8_x86/xilinx/Vivado/2021.2/data/vhdl/src/unisims/secureip/ISERDESE2.vhd \
-# 
+#
 # VHDL_SOURCES += \
 #     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/DVI_Constants.vhd  \
 #     ${PROJ_HOME}/tests/digilent-dvi2rgb/src/SyncAsync.vhd      \
@@ -57,8 +57,8 @@ MODULE?=test_${TEST}
 
 # VHDL_SOURCES += \
 #     ${PROJ_HOME}/tests/dvi/${TEST}.vhd
-  
-    
+
+
 #RTL_SOURCES += \
 
 DUT_SOURCES = \

@@ -56,8 +56,8 @@ ifeq ($(WAVES),1)
 		EXTRA_ARGS += --trace-fst
 		EXTRA_ARGS += --trace-structs
 	else ifeq ($(SIM),ghdl)
-#         SIM_ARGS += --wave=sim_build/${TOPLEVEL}.ghw 
-        SIM_ARGS += --vcd=sim_build/${TOPLEVEL}.vcd 
+#         SIM_ARGS += --wave=sim_build/${TOPLEVEL}.ghw
+        SIM_ARGS += --vcd=sim_build/${TOPLEVEL}.vcd
 	endif
 endif
 
@@ -113,7 +113,7 @@ VERILOG_DESIGN?=\
     ${SIM_VERILOG_SOURCES} \
     ${XILINX_SIM_SOURCES} \
     ${EXT_VERILOG_SOURCES} \
-    ${INT_VERILOG_SOURCES} 
+    ${INT_VERILOG_SOURCES}
 
 VERILOG_SOURCES+=\
     ${VERILOG_DESIGN} \
@@ -121,7 +121,7 @@ VERILOG_SOURCES+=\
 VHDL_SOURCES+=\
     ${INT_VHDL_SOURCES} \
     ${EXT_VHDL_SOURCES}
-    
+
 ifeq ($(TOPLEVEL_LANG),verilog)
 	VERILOG_SOURCES+=\
 		${COCOTB_SOURCES}
@@ -158,4 +158,3 @@ clean::
 	rm -rf __pycache__/ .simvision/ .Xil/ results.xml *.trn *.dsn vivado* *.vcd *.out \
 		irun* simvision* xrun* .bpad/ waves.shm/ *.err INCA_libs/ *.fst* ncvlog.log \
 		e~${TOPLEVEL}.o ${TOPLEVEL}
-

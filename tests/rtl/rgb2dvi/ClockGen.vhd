@@ -1,21 +1,21 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
+-- Company:
+-- Engineer:
+--
 -- Create Date: 11/03/2014 06:27:16 PM
--- Design Name: 
+-- Design Name:
 -- Module Name: ClockGen - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
+-- Project Name:
+-- Target Devices:
+-- Tool Versions:
+-- Description:
+--
+-- Dependencies:
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
--- 
+--
 ----------------------------------------------------------------------------------
 
 
@@ -93,16 +93,16 @@ PLL_LockSyncAsync: SyncAsync
       aIn => aLocked_int,
       OutClk => PixelClkIn,
       oOut => pLocked);
-      
+
 PLL_LockLostDetect: process(PixelClkIn, pRst)
 begin
    if (pRst = '1') then
       pLocked_q <= (others => '0');
-      pLockWasLost <= '1'; 
+      pLockWasLost <= '1';
 	  pLockGained <= '0';
    elsif Rising_Edge(PixelClkIn) then
       pLocked_q <= pLocked_q(pLocked_q'high-1 downto 0) & pLocked;
-      pLockWasLost <= (not pLocked_q(0) or not pLocked_q(1)) and pLocked_q(2); --two-pulse 
+      pLockWasLost <= (not pLocked_q(0) or not pLocked_q(1)) and pLocked_q(2); --two-pulse
       pLockGained <= (pLocked_q(0) and not pLocked_q(1));
    end if;
 end process;
@@ -210,29 +210,29 @@ SerialClkBuffer: BUFIO
 -- 1x slow parallel clock
 PixelClkBuffer: BUFR
    generic map (
-      BUFR_DIVIDE => "5",   -- Values: "BYPASS, 1, 2, 3, 4, 5, 6, 7, 8" 
-      SIM_DEVICE => "7SERIES"  -- Must be set to "7SERIES" 
+      BUFR_DIVIDE => "5",   -- Values: "BYPASS, 1, 2, 3, 4, 5, 6, 7, 8"
+      SIM_DEVICE => "7SERIES"  -- Must be set to "7SERIES"
    )
    port map (
       O => PixelClkOut,     -- 1-bit output: Clock output port
       CE => '1',   -- 1-bit input: Active high, clock enable (Divided modes only)
-      CLR => pLockGained, -- 1-bit input: Active high, asynchronous clear (Divided modes only)        
+      CLR => pLockGained, -- 1-bit input: Active high, asynchronous clear (Divided modes only)
       I => PixelClkInX5      -- 1-bit input: Clock buffer input driven by an IBUF, MMCM or local interconnect
    );
 -- Adding a divide-by-one BUFR in the feedback will de-skew SerialClk and PixelClkOut resulting in better timing
 Deskew: BUFR
    generic map (
-      BUFR_DIVIDE => "1",   -- Values: "BYPASS, 1, 2, 3, 4, 5, 6, 7, 8" 
-      SIM_DEVICE => "7SERIES"  -- Must be set to "7SERIES" 
+      BUFR_DIVIDE => "1",   -- Values: "BYPASS, 1, 2, 3, 4, 5, 6, 7, 8"
+      SIM_DEVICE => "7SERIES"  -- Must be set to "7SERIES"
    )
    port map (
       O => FeedbackClkIn,     -- 1-bit output: Clock output port
       CE => '1',   -- 1-bit input: Active high, clock enable (Divided modes only)
-      CLR => '0', -- 1-bit input: Active high, asynchronous clear (Divided modes only)        
+      CLR => '0', -- 1-bit input: Active high, asynchronous clear (Divided modes only)
       I => FeedbackClkOut      -- 1-bit input: Clock buffer input driven by an IBUF, MMCM or local interconnect
    );
-   
-   aLocked <= aLocked_int;   
+
+   aLocked <= aLocked_int;
 end generate;
 
 GenPLL: if kClkPrimitive /= "MMCM" generate
@@ -280,14 +280,14 @@ DVI_ClkGenerator: PLLE2_ADV
       LOCKED              => aLocked_int,
       PWRDWN              => '0',
       RST                 => pLockWasLost);
- 
+
 
 --No buffering used
 --These clocks will only drive the OSERDESE2 primitives
 SerialClk <= PixelClkInX5;
 PixelClkOut <= PixelClkInX1;
 FeedbackClkIn <= FeedbackClkOut;
-aLocked <= aLocked_int;    
+aLocked <= aLocked_int;
 
 end generate;
 

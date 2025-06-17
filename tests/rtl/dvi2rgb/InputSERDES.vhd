@@ -8,8 +8,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2014 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -25,22 +25,22 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
 --
 -- Purpose:
 -- This module instantiates the Xilinx 7-series primitives necessary for
--- de-serializing the TMDS data stream. 
---  
+-- de-serializing the TMDS data stream.
+--
 -------------------------------------------------------------------------------
 
 
@@ -63,21 +63,21 @@ entity InputSERDES is
    Port (
       PixelClk : in std_logic;   --Recovered TMDS clock x1 (CLKDIV)
       SerialClk : in std_logic;  --Recovered TMDS clock x5 (CLK)
-      
+
       --Encoded serial data
       sDataIn_p : in std_logic;  --TMDS data channel positive
       sDataIn_n : in std_logic;  --TMDS data channel negative
-      
+
       --Encoded parallel data (raw)
       pDataIn : out STD_LOGIC_VECTOR (kParallelWidth-1 downto 0);
-      
+
       --Control for phase alignment
       pBitslip : in STD_LOGIC;   --Bitslip for ISERDESE2
       pIDLY_LD : in STD_LOGIC;   --IDELAYE2 Load
       pIDLY_CE : in STD_LOGIC;   --IDELAYE2 CE
       pIDLY_INC : in STD_LOGIC;  --IDELAYE2 Tap Increment
       pIDLY_CNT : out std_logic_vector(kIDLY_TapWidth-1 downto 0);  --IDELAYE2 Current Tap Count
-      
+
       aRst : in STD_LOGIC
    );
 end InputSERDES;
@@ -88,7 +88,7 @@ signal sDataIn, sDataInDly, icascade1, icascade2, SerialClkInv : std_logic;
 signal pDataIn_q : std_logic_vector(13 downto 0); --ISERDESE2 can do 1:14 at most
 begin
 
--- Differential input buffer for TMDS I/O standard 
+-- Differential input buffer for TMDS I/O standard
 InputBuffer: IBUFDS
    generic map (
       DIFF_TERM  => FALSE,
@@ -131,7 +131,7 @@ DeserializerMaster: ISERDESE2
    generic map (
       DATA_RATE         => "DDR",
       DATA_WIDTH        => kParallelWidth,
-      INTERFACE_TYPE    => "NETWORKING", 
+      INTERFACE_TYPE    => "NETWORKING",
       DYN_CLKDIV_INV_EN => "FALSE",
       DYN_CLK_INV_EN    => "FALSE",
       NUM_CE            => 2,
@@ -149,14 +149,14 @@ DeserializerMaster: ISERDESE2
       Q8                => pDataIn_q(7),
       SHIFTOUT1         => icascade1, -- Cascade connection to Slave ISERDES
       SHIFTOUT2         => icascade2, -- Cascade connection to Slave ISERDES
-      BITSLIP           => pBitslip, -- 1-bit Invoke Bitslip. This can be used with any 
+      BITSLIP           => pBitslip, -- 1-bit Invoke Bitslip. This can be used with any
       CE1               => '1', -- 1-bit Clock enable input
       CE2               => '1', -- 1-bit Clock enable input
       CLK               => SerialClk, -- Fast Source Synchronous SERDES clock from BUFIO
       CLKB              => SerialClkInv, -- Locally inverted clock
       CLKDIV            => PixelClk, -- Slow clock driven by BUFR
       CLKDIVP           => '0', --Not used here
-      D                 => '0',                                
+      D                 => '0',
       DDLY              => sDataInDly, -- 1-bit Input signal from IODELAYE1.
       RST               => aRst, -- 1-bit Asynchronous reset only.
       SHIFTIN1          => '0',
@@ -193,14 +193,14 @@ DeserializerSlave: ISERDESE2
       SHIFTOUT2         => open,
       SHIFTIN1          => icascade1, -- Cascade connections from Master ISERDES
       SHIFTIN2          => icascade2,-- Cascade connections from Master ISERDES
-      BITSLIP           => pBitslip, -- 1-bit Invoke Bitslip. This can be used with any 
+      BITSLIP           => pBitslip, -- 1-bit Invoke Bitslip. This can be used with any
       CE1               => '1', -- 1-bit Clock enable input
       CE2               => '1', -- 1-bit Clock enable input
       CLK               => SerialClk, -- Fast Source Synchronous SERDES clock from BUFIO
       CLKB              => SerialClkInv, -- Locally inverted clock
       CLKDIV            => PixelClk, -- Slow clock driven by BUFR
       CLKDIVP           => '0', --Not used here
-      D                 => '0',                                
+      D                 => '0',
       DDLY              => '0', -- not used in cascaded Slave mode
       RST               => aRst, -- 1-bit Asynchronous reset only.
       -- unused connections
@@ -211,14 +211,14 @@ DeserializerSlave: ISERDESE2
       OCLKB            => '0',
       O                => open); -- unregistered output of ISERDESE1
 
-------------------------------------------------------------- 
+-------------------------------------------------------------
 -- Concatenate the serdes outputs together. Keep the timesliced
 -- bits together, and placing the earliest bits on the right
 -- ie, if data comes in 0, 1, 2, 3, 4, 5, 6, 7, ...
 -- the output will be 3210, 7654, ...
-------------------------------------------------------------- 
+-------------------------------------------------------------
 SliceISERDES_q: for slice_count in 0 to kParallelWidth-1 generate begin
-    --DVI sends least significant bit first 
+    --DVI sends least significant bit first
    -- This places the first data in time on the right
    pDataIn(slice_count) <= pDataIn_q(kParallelWidth-slice_count-1);
 end generate SliceISERDES_q;

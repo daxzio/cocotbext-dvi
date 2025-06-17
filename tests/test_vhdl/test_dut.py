@@ -20,22 +20,23 @@ class testbench:
 
         start_soon(detect_clk(self.clk.clk, "pixelclk", 25))
         start_soon(self.timeout())
-    
-    async def timeout(self, time=5000000, units='ns'):
+
+    async def timeout(self, time=5000000, units="ns"):
         await Timer(time, units)
-        raise Exception(f'Timeout occurred! {time} {units}')
+        raise Exception(f"Timeout occurred! {time} {units}")
+
 
 @test()
 async def test_rgb(dut):
     tb = testbench(dut)
 
-#     signals_in = {
-#         "vsync": "vid_in_vsync",
-#         "hsync": "vid_in_hsync",
-#         "de": "vid_in_de",
-#         "data": "vid_in_data",
-#     }
-#     rgb_in_bus = RGBBus(dut, signals=signals_in)
+    #     signals_in = {
+    #         "vsync": "vid_in_vsync",
+    #         "hsync": "vid_in_hsync",
+    #         "de": "vid_in_de",
+    #         "data": "vid_in_data",
+    #     }
+    #     rgb_in_bus = RGBBus(dut, signals=signals_in)
     rgb_in_bus = RGBBus.from_prefix(dut, prefix="vid_in")
 
     rgb_in = RGBDriver(
@@ -70,13 +71,13 @@ async def test_rgb(dut):
 async def test_dvi(dut):
     tb = testbench(dut)
 
-#     signals_in = {
-#         "clk_p": "tmds_in_clk_p",
-#         "clk_n": "tmds_in_clk_n",
-#         "data_p": "tmds_in_data_p",
-#         "data_n": "tmds_in_data_n",
-#     }
-#     dvi_in_bus = DVIBus(dut, signals=signals_in)
+    #     signals_in = {
+    #         "clk_p": "tmds_in_clk_p",
+    #         "clk_n": "tmds_in_clk_n",
+    #         "data_p": "tmds_in_data_p",
+    #         "data_n": "tmds_in_data_n",
+    #     }
+    #     dvi_in_bus = DVIBus(dut, signals=signals_in)
     dvi_in_bus = DVIBus.from_prefix(dut, prefix="tmds_in")
     dvi_in = DVIDriver(
         dut,

@@ -8,8 +8,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2014 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -25,21 +25,21 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
 --
 -- Purpose:
 -- This package defines constants/parameters taken from the DVI specs.
---  
+--
 -------------------------------------------------------------------------------
 
 library IEEE;
@@ -60,10 +60,10 @@ package DVI_Constants is
    constant kCtlTkn1 : std_logic_vector(9 downto 0) := "0010101011";
    constant kCtlTkn2 : std_logic_vector(9 downto 0) := "0101010100";
    constant kCtlTkn3 : std_logic_vector(9 downto 0) := "1010101011";
-   
+
    constant kMinTknCntForBlank : natural := 128; --tB
    constant kBlankTimeoutMs : natural := 50;
 end DVI_Constants;
 
-package body DVI_Constants is 
+package body DVI_Constants is
 end DVI_Constants;

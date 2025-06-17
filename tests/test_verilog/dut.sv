@@ -3,12 +3,12 @@ module dut (
     , input         SerialClk
     , input         vid_in_vsync
     , input         vid_in_hsync
-    , input         vid_in_de   
-    , input  [23:0] vid_in_data 
+    , input         vid_in_de
+    , input  [23:0] vid_in_data
     , output         vid_out_vsync
     , output         vid_out_hsync
-    , output         vid_out_de   
-    , output  [23:0] vid_out_data 
+    , output         vid_out_de
+    , output  [23:0] vid_out_data
     , input        tmds_in_clk_p
     , input        tmds_in_clk_n
     , input [ 2:0] tmds_in_data_p

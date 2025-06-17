@@ -9,6 +9,6 @@ module vcd_dump ();
         #1;
         /* verilator lint_on STMTDLY */
     end
-    `endif    
+    `endif
 
 endmodule

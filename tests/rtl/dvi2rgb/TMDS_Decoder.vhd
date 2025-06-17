@@ -8,8 +8,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2014 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -25,14 +25,14 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
@@ -43,7 +43,7 @@
 -- deserializes the stream, eliminates skew between data channels and decodes
 -- data in the end.
 -- sDataIn_p/n -> buffer -> de-serialize -> channel de-skew -> decode -> pData
---  
+--
 -------------------------------------------------------------------------------
 
 library IEEE;
@@ -70,35 +70,35 @@ entity TMDS_Decoder is
       SerialClk : in std_logic;  --Recovered TMDS clock x5 (CLK)
       RefClk : std_logic;        --200 MHz reference clock
       aRst : in std_logic;       --asynchronous reset; must be reset when PixelClk/SerialClk is not within spec
-      
+
       --Encoded serial data
       sDataIn_p : in std_logic;  --TMDS data channel positive
       sDataIn_n : in std_logic;  --TMDS data channel negative
-      
+
       --Decoded parallel data
       pDataIn : out std_logic_vector(7 downto 0);
       pC0 : out std_logic;
       pC1 : out std_logic;
       pVde : out std_logic;
-      
+
       -- Channel bonding (three data channels in total)
       pOtherChVld : in std_logic_vector(1 downto 0);
       pOtherChRdy : in std_logic_vector(1 downto 0);
       pMeVld : out std_logic;
       pMeRdy : out std_logic;
-      
+
       --Status and debug
       pRst : in std_logic; -- Synchronous reset to restart lock procedure
-      dbg_pAlignErr : out std_logic; 
+      dbg_pAlignErr : out std_logic;
       dbg_pEyeSize : out STD_LOGIC_VECTOR(kIDLY_TapWidth-1 downto 0);
       dbg_pBitslip : out std_logic
       );
 end TMDS_Decoder;
 
 architecture Behavioral of TMDS_Decoder is
-constant kBitslipDelay : natural := 3; --three-period delay after bitslip 
-signal pAlignRst, pLockLostRst_n : std_logic; 
-signal pBitslipCnt : natural range 0 to kBitslipDelay - 1 := kBitslipDelay - 1; 
+constant kBitslipDelay : natural := 3; --three-period delay after bitslip
+signal pAlignRst, pLockLostRst_n : std_logic;
+signal pBitslipCnt : natural range 0 to kBitslipDelay - 1 := kBitslipDelay - 1;
 signal pDataIn8b : std_logic_vector(7 downto 0);
 signal pDataInBnd : std_logic_vector(9 downto 0);
 signal pDataInRaw : std_logic_vector(9 downto 0);
@@ -125,17 +125,17 @@ InputSERDES_X: entity work.InputSERDES
       SerialClk => SerialClk,
       sDataIn_p => sDataIn_p,
       sDataIn_n => sDataIn_n,
-      
+
       --Encoded parallel data (raw)
       pDataIn => pDataInRaw,
-      
+
       --Control for phase alignment
       pBitslip => pBitslip,
       pIDLY_LD => pIDLY_LD,
       pIDLY_CE => pIDLY_CE,
       pIDLY_INC => pIDLY_INC,
       pIDLY_CNT => pIDLY_CNT,
-      
+
       aRst => aRst
    );
 -- reset min two period (ISERDESE2 requirement)
@@ -168,7 +168,7 @@ SyncBaseOvf: entity work.SyncBase
       iIn => rTimeoutOvf,
       OutClk => PixelClk,
       oOut => pTimeoutOvf);
-      
+
 SyncBaseRst: entity work.SyncBase
    generic map (
       kResetTo => '1',
@@ -179,11 +179,11 @@ SyncBaseRst: entity work.SyncBase
       iIn => pTimeoutRst,
       OutClk => RefClk,
       oOut => rTimeoutRst);
-        
+
 -- Phase alignment controller to lock onto data stream
-PhaseAlignX: entity work.PhaseAlign 
+PhaseAlignX: entity work.PhaseAlign
    generic map (
-      kUseFastAlgorithm => false,   
+      kUseFastAlgorithm => false,
       kCtlTknCount => kCtlTknCount,
       kIDLY_TapValuePs => kIDLY_TapValuePs,
       kIDLY_TapWidth => kIDLY_TapWidth
@@ -237,7 +237,7 @@ begin
       end if;
    end if;
 end process BitslipDelay;
-   
+
 -- Channel de-skew (bonding)
 ChannelBondX: entity work.ChannelBond
    port map (
@@ -245,23 +245,23 @@ ChannelBondX: entity work.ChannelBond
       pDataInRaw => pDataInRaw,
       pMeVld => pAligned,
       pOtherChVld => pOtherChVld,
-      pOtherChRdy => pOtherChRdy,      
+      pOtherChRdy => pOtherChRdy,
       pDataInBnd => pDataInBnd,
       pMeRdy => pMeRdy_int);
 
 pMeRdy <= pMeRdy_int;
 
 -- Below performs the 10B-8B decoding function
--- DVI Specification: Section 3.3.3, Figure 3-6, page 31. 
+-- DVI Specification: Section 3.3.3, Figure 3-6, page 31.
 pDataIn8b <=   pDataInBnd(7 downto 0) when pDataInBnd(9) = '0' else
                not pDataInBnd(7 downto 0);
-               
+
 TMDS_Decode: process (PixelClk)
 begin
    if Rising_Edge(PixelClk) then
       if (pMeRdy_int = '1' and pOtherChRdy = "11") then
          pDataIn <= x"00"; --added for VGA-compatibility (blank pixel needed during blanking)
-         
+
          case (pDataInBnd) is
             --Control tokens decode straight to C0, C1 values
             when kCtlTkn0 =>
@@ -271,7 +271,7 @@ begin
             when kCtlTkn1 =>
                pC0 <= '1';
                pC1 <= '0';
-               pVde <= '0';               
+               pVde <= '0';
             when kCtlTkn2 =>
                pC0 <= '0';
                pC1 <= '1';
@@ -282,7 +282,7 @@ begin
                pVde <= '0';
             --If not control token, it's encoded data
             when others =>
-               pVde <= '1'; 
+               pVde <= '1';
                pDataIn(0) <= pDataIn8b(0);
                for iBit in 1 to 7 loop
                   if (pDataInBnd(8) = '1') then
@@ -290,7 +290,7 @@ begin
                   else
                      pDataIn(iBit) <= pDataIn8b(iBit) xnor pDataIn8b(iBit-1);
                   end if;
-               end loop;                           
+               end loop;
          end case;
       else --if we are not aligned on all channels, gate outputs
          pC0 <= '0';

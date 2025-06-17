@@ -4,7 +4,6 @@ from fpga import Project
 
 
 class vivado_helper:
-
     def __init__(self):
         self.cwd = os.getcwd()
         self.build_dir = f"{self.cwd}/build"
@@ -58,7 +57,9 @@ class vivado_helper:
 
         if len(self.defines) > 0:
             defines = " ".join(self.defines)
-            self.prj.add_hook(f"set_property verilog_define {{{defines}}} [current_fileset]")
+            self.prj.add_hook(
+                f"set_property verilog_define {{{defines}}} [current_fileset]"
+            )
 
         for constraint in self.constraints:
             c = constraint.split(",")

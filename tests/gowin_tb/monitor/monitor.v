@@ -1,11 +1,11 @@
 //---------------------------------------------------------------------
 // File name  : monitor.v
 // Module name: monitor
-// Created by : 
+// Created by :
 // ---------------------------------------------------------------------
 // Release history
 // VERSION |  Date       | AUTHOR     |    DESCRIPTION
-// ---------------------------------------------------------------------  
+// ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -14,16 +14,16 @@ module monitor
 (
   input       link_i      , //0,µ¥ÏñËØ£»1£¬Ë«ÏñËØ
   input       video2bmp_en,
-  input       pixel_clock , 
-  input       vsync       ,       
-  input       hsync       ,       
-  input       data_valid  ,  
-  input [7:0] data0_r     , 
-  input [7:0] data0_g     , 
+  input       pixel_clock ,
+  input       vsync       ,
+  input       hsync       ,
+  input       data_valid  ,
+  input [7:0] data0_r     ,
+  input [7:0] data0_g     ,
   input [7:0] data0_b     ,
-  input [7:0] data1_r     , 
-  input [7:0] data1_g     , 
-  input [7:0] data1_b     
+  input [7:0] data1_r     ,
+  input [7:0] data1_g     ,
+  input [7:0] data1_b
 );
 
 //===============================================

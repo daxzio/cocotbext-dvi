@@ -8,8 +8,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2014 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -25,14 +25,14 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
@@ -42,7 +42,7 @@
 --    allow 0.2 Tcharacter + 1.78ns skew between channels. To re-align the
 --    channels all are buffered in FIFOs until a special marker (the beginning
 --    of a blanking period) is found on all the channels.
---  
+--
 -------------------------------------------------------------------------------
 
 
@@ -65,7 +65,7 @@ entity ChannelBond is
       pMeVld : in std_logic;
       pOtherChVld : in std_logic_vector(1 downto 0);
       pOtherChRdy : in std_logic_vector(1 downto 0);
-      
+
       pDataInBnd : out std_logic_vector(9 downto 0);
       pMeRdy : out std_logic
       );
@@ -116,7 +116,7 @@ begin
          pRdA <= 0;
       elsif (pRdEn = '1') then
          pRdA <= (pRdA + 1) mod kFIFO_Depth;
-      end if;   
+      end if;
    end if;
 end process FIFO_RdA;
 
@@ -132,7 +132,7 @@ end process DataValidFlag;
 -- Channel bonding is done here:
 -- 1 When all the channels have valid data (ie. alignment lock), FIFO is flow-through
 -- 2 When marker is found on this channel, FIFO read is paused, thus holding data
--- 3 When all channels report the marker, FIFO read begins again, thus syncing markers  
+-- 3 When all channels report the marker, FIFO read begins again, thus syncing markers
 -------------------------------------------------------------------------------
 FIFO_RdEn: process(PixelClk)
 begin
@@ -143,7 +143,7 @@ begin
          pRdEn <= '1';
       elsif (pBlnkBgnFlag = '1' and not (pMeRdy_int = '1' and pOtherChRdy = "11")) then
          pRdEn <= '0';
-      end if; 
+      end if;
    end if;
 end process FIFO_RdEn;
 
@@ -169,7 +169,7 @@ begin
          pMeRdy_int <= '0';
       elsif (pBlnkBgnFlag = '1') then
          pMeRdy_int <= '1';
-      end if; 
+      end if;
    end if;
 end process IAmReady;
 

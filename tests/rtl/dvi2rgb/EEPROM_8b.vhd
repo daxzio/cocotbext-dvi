@@ -8,8 +8,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2014 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -25,14 +25,14 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
@@ -46,7 +46,7 @@
 --    An example use case for this module would be a DDC EEPROM, storing EDID
 --    (Extended display identification data). The I2C bus bus is compatible
 --    with both standard and fast mode.
---  
+--
 -------------------------------------------------------------------------------
 
 
@@ -103,20 +103,20 @@ begin
    return ram_name;
 end function;
 
-impure function init_from_file_or_zeroes(ramfile : string) return eeprom_t is 
-begin 
-    if ramfile = "" then 
-       return (others => (others => '0')); 
-    else 
-       return InitRamFromFile(ramfile);  
-    end if; 
+impure function init_from_file_or_zeroes(ramfile : string) return eeprom_t is
+begin
+    if ramfile = "" then
+       return (others => (others => '0'));
+    else
+       return InitRamFromFile(ramfile);
+    end if;
 end;
 
-signal eeprom : eeprom_t := init_from_file_or_zeroes(kInitFileName); 
+signal eeprom : eeprom_t := init_from_file_or_zeroes(kInitFileName);
 signal aEeprom_out : std_logic_vector(kRAM_Width-1 downto 0);
 signal sAddr : natural range 0 to 2**kAddrBits - 1;
 
-type state_type is (stIdle, stRead, stWrite, stRegAddress); 
+type state_type is (stIdle, stRead, stWrite, stRegAddress);
 signal sState, sNstate : state_type;
 
 signal sI2C_DataIn, sI2C_DataOut : std_logic_vector(7 downto 0);
@@ -177,7 +177,7 @@ begin
       end if;
    end if;
 end process RegisterAddress;
-				
+
 --Insert the following in the architecture after the begin keyword
 SyncProc: process (SampleClk)
 begin
@@ -186,10 +186,10 @@ begin
          sState <= stIdle;
       else
          sState <= sNstate;
-      end if;   
+      end if;
    end if;
 end process SyncProc;
- 
+
 --MOORE State-Machine - Outputs based on state only
 sI2C_Stb <= '1' when (sState = stRegAddress or sState = stRead or sState = stWrite) else '0';
 sWe <= '1' when (sState = stWrite) else '0';
@@ -207,31 +207,31 @@ begin
                sNstate <= stRegAddress;
             end if;
          end if;
-         
+
       when stRegAddress =>
          if (sI2C_End = '1') then
             sNstate <= stIdle;
          elsif (sI2C_Done = '1') then
             sNstate <= stWrite;
          end if;
-         
+
       when stWrite =>
          if (sI2C_End = '1') then
             sNstate <= stIdle;
          elsif (sI2C_Done = '1') then
             sNstate <= stWrite;
          end if;
-         
+
       when stRead =>
          if (sI2C_End = '1') then
             sNstate <= stIdle;
          elsif (sI2C_Done = '1') then
             sNstate <= stRead;
          end if;
-         
+
       when others =>
          sNstate <= stIdle;
-   end case;      
+   end case;
 end process NextStateDecode;
 
 end Behavioral;

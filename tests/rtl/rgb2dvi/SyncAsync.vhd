@@ -35,7 +35,7 @@
 -- domain and provides it on oOut. The number of FFs in the synchronizer chain
 -- can be configured with kStages. The reset value for oOut can be configured
 -- with kResetTo. The asynchronous reset (aReset) is always active-high.
---  
+--
 -------------------------------------------------------------------------------
 
 

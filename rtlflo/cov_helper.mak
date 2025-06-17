@@ -33,7 +33,7 @@ vhdl2vlog:
 	ghdl -a --std=08 -fsynopsys -fexplicit -frelaxed /mnt/sda/projects/cocotbext-dvi/tests/rtl/rgb2dvi/ClockGen.vhd
 	ghdl -a --std=08 -fsynopsys -fexplicit -frelaxed /mnt/sda/projects/cocotbext-dvi/tests/rtl/rgb2dvi/rgb2dvi.vhd
 	ghdl synth --out=verilog -o=rgb2dvi.v --vendor-library=unisim --std=08 -fsynopsys -fexplicit -frelaxed rgb2dvi
-# 
-# 
+#
+#
 # 	ghdl -a -v -P./unisim/v93 --std=93c -fsynopsys -fexplicit -frelaxed --ieee=synopsys /mnt/sda/projects/cocotbext-dvi/tests/rtl/rgb2dvi/OutputSERDES.vhd
 # 	ghdl -a -v -P/mnt/sda/projects/cocotbext-dvi/tests/xilinx-vivado.2024.2/unisim --std=08 -fsynopsys -fexplicit -frelaxed /mnt/sda/projects/cocotbext-dvi/tests/rtl/rgb2dvi/OutputSERDES.vhd

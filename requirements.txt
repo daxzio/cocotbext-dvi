@@ -5,3 +5,4 @@ pyflakes
 ruff
 mypy
 opencv-python
+pre-commit

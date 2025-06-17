@@ -8,8 +8,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2015 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -25,14 +25,14 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
@@ -42,8 +42,8 @@
 -- TMDS data channels and one TMDS clock channel. It includes the necessary
 -- clock infrastructure, deserialization, phase alignment, channel deskew and
 -- decode logic. It outputs 24-bit RGB video data along with pixel clock and
--- synchronization signals. 
---  
+-- synchronization signals.
+--
 -------------------------------------------------------------------------------
 
 
@@ -63,47 +63,47 @@ use work.DVI_Constants.all;
 
 entity dvi2rgb is
    Generic (
-      kEmulateDDC : boolean := true; --will emulate a DDC EEPROM with basic EDID, if set to yes 
+      kEmulateDDC : boolean := true; --will emulate a DDC EEPROM with basic EDID, if set to yes
       kRstActiveHigh : boolean := true; --true, if active-high; false, if active-low
-      kAddBUFG : boolean := true; --true, if PixelClk should be re-buffered with BUFG 
+      kAddBUFG : boolean := true; --true, if PixelClk should be re-buffered with BUFG
       kClkRange : natural := 2;  -- MULT_F = kClkRange*5 (choose >=120MHz=1, >=60MHz=2, >=40MHz=3)
       kEdidFileName : string := "dgl_720p_cea.data";  -- Select EDID file to use
       kDebug : boolean := true;
       -- 7-series specific
       kIDLY_TapValuePs : natural := 78; --delay in ps per tap
-      kIDLY_TapWidth : natural := 5); --number of bits for IDELAYE2 tap counter   
+      kIDLY_TapWidth : natural := 5); --number of bits for IDELAYE2 tap counter
    Port (
       -- DVI 1.0 TMDS video interface
       TMDS_Clk_p : in std_logic;
       TMDS_Clk_n : in std_logic;
       TMDS_Data_p : in std_logic_vector(2 downto 0);
       TMDS_Data_n : in std_logic_vector(2 downto 0);
-      
-      -- Auxiliary signals 
+
+      -- Auxiliary signals
       RefClk : in std_logic; --200 MHz reference clock for IDELAYCTRL, reset, lock monitoring etc.
       aRst : in std_logic; --asynchronous reset; must be reset when RefClk is not within spec
       aRst_n : in std_logic; --asynchronous reset; must be reset when RefClk is not within spec
-      
+
       -- Video out
       vid_pData : out std_logic_vector(23 downto 0);
       vid_pVDE : out std_logic;
       vid_pHSync : out std_logic;
       vid_pVSync : out std_logic;
-      
+
       PixelClk : out std_logic; --pixel-clock recovered from the DVI interface
-      
+
       SerialClk : out std_logic; -- advanced use only; 5x PixelClk
       aPixelClkLckd : out std_logic; -- DEPRECATED advanced use only; PixelClk and SerialClk stable
       pLocked : out std_logic; -- PixelClk and SerialClk stable, async de-assert, assert sync to PixelClk
-      
+
       -- Optional DDC port
       SDA_I : in std_logic;
       SDA_O : out std_logic;
       SDA_T : out std_logic;
       SCL_I : in std_logic;
-      SCL_O : out std_logic; 
+      SCL_O : out std_logic;
       SCL_T : out std_logic;
-      
+
       pRst : in std_logic; -- synchronous reset; will restart locking procedure
       pRst_n : in std_logic -- synchronous reset; will restart locking procedure
    );
@@ -117,10 +117,10 @@ PORT (
 
 	trig_out : OUT STD_LOGIC;
 	trig_out_ack : IN STD_LOGIC;
-	probe0 : IN STD_LOGIC_VECTOR(0 DOWNTO 0); 
-	probe1 : IN STD_LOGIC_VECTOR(0 DOWNTO 0); 
-	probe2 : IN STD_LOGIC_VECTOR(0 DOWNTO 0); 
-	probe3 : IN STD_LOGIC_VECTOR(0 DOWNTO 0); 
+	probe0 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+	probe1 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+	probe2 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+	probe3 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
 	probe4 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
 	probe5 : IN STD_LOGIC_VECTOR(0 DOWNTO 0)
 );
@@ -133,12 +133,12 @@ PORT (
 
 	trig_in : IN STD_LOGIC;
 	trig_in_ack : OUT STD_LOGIC;
-	probe0 : IN STD_LOGIC_VECTOR(0 DOWNTO 0); 
-	probe1 : IN STD_LOGIC_VECTOR(4 DOWNTO 0); 
-	probe2 : IN STD_LOGIC_VECTOR(4 DOWNTO 0); 
-	probe3 : IN STD_LOGIC_VECTOR(4 DOWNTO 0); 
-	probe4 : IN STD_LOGIC_VECTOR(2 DOWNTO 0); 
-	probe5 : IN STD_LOGIC_VECTOR(2 DOWNTO 0); 
+	probe0 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+	probe1 : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+	probe2 : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+	probe3 : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+	probe4 : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+	probe5 : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
 	probe6 : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
 	probe7 : IN STD_LOGIC_VECTOR(2 DOWNTO 0)
 );
@@ -188,15 +188,15 @@ TMDS_ClockingX: entity work.TMDS_Clocking
    generic map (
       kClkRange => kClkRange)
    port map (
-      aRst       => aRst_int, 
+      aRst       => aRst_int,
       RefClk     => RefClk,
-      TMDS_Clk_p => TMDS_Clk_p,      
+      TMDS_Clk_p => TMDS_Clk_p,
       TMDS_Clk_n => TMDS_Clk_n,
 
-      aLocked    => aLocked,  
+      aLocked    => aLocked,
       PixelClk   => PixelClk_int, -- slow parallel clock
       SerialClk  => SerialClk_int, -- fast serial clock
-      
+
       dbg_rDlyRst => dbg_rDlyRst,
       dbg_rRdyRst => dbg_rRdyRst,
       dbg_rMMCM_Reset => dbg_rMMCM_Reset,
@@ -204,7 +204,7 @@ TMDS_ClockingX: entity work.TMDS_Clocking
       dbg_rMMCM_Locked => dbg_rMMCM_Locked
    );
 dbg_Clocking_aLocked <= aLocked;
- 
+
 -- We need a reset bridge to use the asynchronous aLocked signal to reset our circuitry
 -- and decrease the chance of metastability. The signal pLockLostRst can be used as
 -- asynchronous reset for any flip-flop in the PixelClk domain, since it will be de-asserted
@@ -227,7 +227,7 @@ LockedSync: entity work.ResetBridge
       aRst => aLocked,
       OutClk => PixelClk_int,
       oRst => pLocked);
-               
+
 -- Three data channel decoders
 DataDecoders: for iCh in 2 downto 0 generate
    OtherChRdy(iCh)(0) <= pRdy((iCh+1) mod 3);
@@ -240,26 +240,26 @@ DataDecoders: for iCh in 2 downto 0 generate
          kTimeoutMs => kBlankTimeoutMs, --what is the maximum time interval for a blank to be detected (DVI spec)
          kRefClkFrqMHz => 200, --what is the RefClk frequency
          kIDLY_TapValuePs => kIDLY_TapValuePs, --delay in ps per tap
-         kIDLY_TapWidth => kIDLY_TapWidth) --number of bits for IDELAYE2 tap counter   
+         kIDLY_TapWidth => kIDLY_TapWidth) --number of bits for IDELAYE2 tap counter
       port map (
-         aRst                    => pLockLostRst,               
+         aRst                    => pLockLostRst,
          PixelClk                => PixelClk_int,
-         SerialClk               => SerialClk_int,   
-         RefClk                  => RefClk,          
+         SerialClk               => SerialClk_int,
+         RefClk                  => RefClk,
          pRst                    => pRst_int,
-         sDataIn_p               => TMDS_Data_p(iCh),                           
-         sDataIn_n               => TMDS_Data_n(iCh),                                       
+         sDataIn_p               => TMDS_Data_p(iCh),
+         sDataIn_n               => TMDS_Data_n(iCh),
          pOtherChRdy(1 downto 0) => OtherChRdy(iCh), -- tie channels together for channel de-skew
          pOtherChVld(1 downto 0) => OtherChVld(iCh), -- tie channels together for channel de-skew
-         
+
          pC0                     => pC0(iCh),
-         pC1                     => pC1(iCh),                    
-         pMeRdy                  => pRdy(iCh),                
-         pMeVld                  => pVld(iCh),                
-         pVde                    => pDE(iCh),                  
-         pDataIn(7 downto 0)     => pDataIn(iCh),   
+         pC1                     => pC1(iCh),
+         pMeRdy                  => pRdy(iCh),
+         pMeVld                  => pVld(iCh),
+         pVde                    => pDE(iCh),
+         pDataIn(7 downto 0)     => pDataIn(iCh),
          dbg_pEyeSize            => dbg_pEyeSize(iCh),
-         dbg_pAlignErr           => dbg_pAlignErr(iCh),       
+         dbg_pAlignErr           => dbg_pAlignErr(iCh),
          dbg_pBitslip            => dbg_pBitslip(iCh)
       );
 end generate DataDecoders;
@@ -307,7 +307,7 @@ DontGenerateBUFG: if not kAddBUFG generate
    vid_pVSync <= pVSync;
    PixelClk <= PixelClk_int;
 end generate DontGenerateBUFG;
-                 
+
 ----------------------------------------------------------------------------------
 -- Optional DDC EEPROM Display Data Channel - Bi-directional (DDC2B)
 -- The EDID will be loaded from the file specified below in kInitFileName.
@@ -341,10 +341,10 @@ PORT MAP (
 	clk => RefClk,
 	trig_out => rTrigOut,
 	trig_out_ack => rTrigOutAck,
-	probe0(0) => dbg_rDlyRst, 
-	probe1(0) => dbg_rRdyRst, 
-	probe2(0) => dbg_rMMCM_Reset, 
-	probe3(0) => dbg_rBUFR_Rst, 
+	probe0(0) => dbg_rDlyRst,
+	probe1(0) => dbg_rRdyRst,
+	probe2(0) => dbg_rMMCM_Reset,
+	probe3(0) => dbg_rBUFR_Rst,
 	probe4(0) => dbg_rMMCM_Locked,
 	probe5(0) => dbg_Clocking_aLocked
 );
@@ -355,23 +355,23 @@ SyncAsyncTrigAck: entity work.SyncAsync
       aIn => pTrigOutAck,
       OutClk => RefClk,
       oOut => rTrigOutAck);
-      
+
 SyncAsyncTrigOut: entity work.SyncAsync
    port map (
       aReset => '0',
       aIn => rTrigOut,
       OutClk => PixelClk_int,
       oOut => pTrigOut);
-      
+
 ILA_PixClkx : ila_pixclk
 PORT MAP (
 	clk => PixelClk_int,
 	trig_in => pTrigOut,
 	trig_in_ack => pTrigOutAck,
-	probe0(0) => pLockLostRst, 
+	probe0(0) => pLockLostRst,
    probe1 => dbg_pEyeSize(0),
    probe2 => dbg_pEyeSize(1),
-   probe3 => dbg_pEyeSize(2), 
+   probe3 => dbg_pEyeSize(2),
    probe4 => dbg_pAlignErr,
    probe5 => dbg_pBitslip,
    probe6 => pVld,

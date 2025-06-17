@@ -8,8 +8,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2014 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -25,14 +25,14 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
@@ -46,8 +46,8 @@
 --  In Artix-7 architecture each tap (step) accounts to 78 ps.
 --  Data is considered valid when control tokens are recognized in the
 --  stream. Alignment lock is achieved when the middle of the valid eye is
---  found. When this happens, pAligned will go high. If the whole range of 
---  delay values had been exhausted and alignment lock could still not be 
+--  found. When this happens, pAligned will go high. If the whole range of
+--  delay values had been exhausted and alignment lock could still not be
 --  achieved, pError will go high. Resetting the module with pRst will
 --  restart the alignment process.
 --  The port pEyeSize provides an approximation of the width of the
@@ -86,7 +86,7 @@ entity PhaseAlign is
       pIDLY_CE : out STD_LOGIC;
       pIDLY_INC : out STD_LOGIC;
       pIDLY_CNT : in STD_LOGIC_VECTOR (kIDLY_TapWidth-1 downto 0);
-      pIDLY_LD : out STD_LOGIC; --load default tap value 
+      pIDLY_LD : out STD_LOGIC; --load default tap value
       pAligned : out STD_LOGIC;
       pError : out STD_LOGIC;
       pEyeSize : out STD_LOGIC_VECTOR(kIDLY_TapWidth-1 downto 0));
@@ -153,7 +153,7 @@ begin
             pCtlTknOvf <= '1';
          else
             pCtlTknOvf <= '0';
-         end if;         
+         end if;
       end if;
    end if;
 end process ControlTokenCounter;
@@ -168,11 +168,11 @@ pTkn3Flag <= '1' when pDataQ = kCtlTkn3 else '0';
 ControlTokenDetect: process(PixelClk)
 begin
    if Rising_Edge(PixelClk) then
-      pDataQ <= pData; -- level 1      
+      pDataQ <= pData; -- level 1
       pTkn0FlagQ <= pTkn0Flag;
       pTkn1FlagQ <= pTkn1Flag;
       pTkn2FlagQ <= pTkn2Flag;
-      pTkn3FlagQ <= pTkn3Flag; -- level 2      
+      pTkn3FlagQ <= pTkn3Flag; -- level 2
       pTknFlag <= pTkn0Flag or pTkn1Flag or pTkn2Flag or pTkn3Flag; -- level 3
       pTknFlagQ <= pTknFlag;
       pBlankBegin <= not pTknFlagQ and pTknFlag; -- level 4
@@ -250,7 +250,7 @@ begin
       else
          pState <= pStateNxt;
 
-      end if;        
+      end if;
    end if;
 end process FSM_Sync;
 
@@ -270,7 +270,7 @@ begin
       else
          pIDLY_LD <= '0';
       end if;
-      
+
       if (pState = DlyIncSt) then
          pIDLY_INC <= '1';
          pIDLY_CE <= '1';
@@ -280,13 +280,13 @@ begin
       else
          pIDLY_CE <= '0';
       end if;
-      
+
       if (pState = AlignedSt) then
          pAligned <= '1';
       else
          pAligned <= '0';
       end if;
-      
+
       if (pState = AlignErrorSt) then
          pError <= '1';
       else
@@ -324,30 +324,30 @@ begin
    case (pState) is
       when ResetSt =>
          pStateNxt <= IdleSt;
-      
+
       when IdleSt => -- waiting for a token with timeout
          if (pBlankBegin = '1') then
             pStateNxt <= TokenSt;
          elsif (pTimeoutOvf = '1') then
             pStateNxt <= JtrZoneSt; -- we didn't find a proper blank, must be in jitter zone
          end if;
-         
+
       when TokenSt => -- waiting for kCtlTknCount tokens with timeout
          if (pTknFlagQ = '0') then
             pStateNxt <= IdleSt;
          elsif (pCtlTknOvf = '1') then
             pStateNxt <= EyeOpenSt;
          end if;
-      
+
       when JtrZoneSt =>
          if (pFoundEyeFlag = '1') then
             pStateNxt <= DlyDecSt; -- this jitter zone ends an open eye, go back to the middle of the eye
          elsif (kUseFastAlgorithm and pDelayFastOvf = '1' and pFoundEyeFlag = '0') then
-            pStateNxt <= AlignErrorSt; 
+            pStateNxt <= AlignErrorSt;
          else
             pStateNxt <= DlyIncSt;
          end if;
-               
+
       when EyeOpenSt =>
          -- If our eye is already kEyeOpenCntEnough wide, consider the search finished and consider the current tap value
          -- the end of our eye = jitter zone
@@ -356,10 +356,10 @@ begin
          else
             pStateNxt <= DlyIncSt;
          end if;
-      
+
       when DlyIncSt =>
          pStateNxt <= DlyTstOvfSt;
-     
+
       when DlyTstOvfSt =>
          if (pDelayWaitOvf = '1') then
             if (pDelayOvf = '1') then
@@ -368,10 +368,10 @@ begin
                pStateNxt <= IdleSt;
             end if;
          end if;
-      
+
       when DlyDecSt =>
          pStateNxt <= DlyTstCenterSt;
-      
+
       when DlyTstCenterSt =>
          if (pDelayWaitOvf = '1') then
             if (pDelayCenter = '1') then
@@ -380,16 +380,16 @@ begin
                pStateNxt <= DlyDecSt;
             end if;
          end if;
-      
+
       when AlignedSt =>
          null; --stay here
-         
+
       when AlignErrorSt =>
          null; --stay here
-                
+
       when others =>
          pStateNxt <= ResetSt;
-   end case;      
+   end case;
 end process FSM_NextState;
 
 end Behavioral;

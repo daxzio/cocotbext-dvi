@@ -1,5 +1,5 @@
 module dut (
-   input        clk 
+   input        clk
   ,input        reset
 //   ,input        clk_200
   ,input       tmds_in_clk_p
@@ -10,30 +10,30 @@ module dut (
   ,output       tmds_out_clk_n
   ,output [2:0] tmds_out_data_p
   ,output [2:0] tmds_out_data_n
-  ,output       vsync        
-  ,output       hsync        
-  ,output       de  
-  ,output [7:0] data_r      
-  ,output [7:0] data_g     
-  ,output [7:0] data_b      
-  ,input        rgb_debug_vsync        
-  ,input        rgb_debug_hsync        
-  ,input        rgb_debug_de  
-  ,input  [7:0] rgb_debug_data_r      
-  ,input  [7:0] rgb_debug_data_g     
-  ,input  [7:0] rgb_debug_data_b      
-  ,input        rgb_in_vsync        
-  ,input        rgb_in_hsync        
-  ,input        rgb_in_de  
-  ,input  [7:0] rgb_in_data_r      
-  ,input  [7:0] rgb_in_data_g     
-  ,input  [7:0] rgb_in_data_b      
-  ,output       rgb_out_vsync        
-  ,output       rgb_out_hsync        
-  ,output       rgb_out_de  
-  ,output [7:0] rgb_out_data_r      
-  ,output [7:0] rgb_out_data_g     
-  ,output [7:0] rgb_out_data_b      
+  ,output       vsync
+  ,output       hsync
+  ,output       de
+  ,output [7:0] data_r
+  ,output [7:0] data_g
+  ,output [7:0] data_b
+  ,input        rgb_debug_vsync
+  ,input        rgb_debug_hsync
+  ,input        rgb_debug_de
+  ,input  [7:0] rgb_debug_data_r
+  ,input  [7:0] rgb_debug_data_g
+  ,input  [7:0] rgb_debug_data_b
+  ,input        rgb_in_vsync
+  ,input        rgb_in_hsync
+  ,input        rgb_in_de
+  ,input  [7:0] rgb_in_data_r
+  ,input  [7:0] rgb_in_data_g
+  ,input  [7:0] rgb_in_data_b
+  ,output       rgb_out_vsync
+  ,output       rgb_out_hsync
+  ,output       rgb_out_de
+  ,output [7:0] rgb_out_data_r
+  ,output [7:0] rgb_out_data_g
+  ,output [7:0] rgb_out_data_b
 );
 
 //     logic        w_pixel_clk;
@@ -73,8 +73,8 @@ module dut (
 //     	,.SCL_T          ( )
 //     	,.pRst           (~reset)
 //     	,.pRst_n         (reset)
-//     ); 
-//     
+//     );
+//
 //     rgb2dvi i_rgb2dvi(
 //           .TMDS_Clk_p (tmds_out_clk_p)
 //         , .TMDS_Clk_n (tmds_out_clk_n)
@@ -101,8 +101,7 @@ module dut (
     assign rgb_out_data_g  = rgb_in_data_g       ;
     assign rgb_out_data_b  = rgb_in_data_b       ;
 
-    vcd_dump i_vcd_dump();    
+    vcd_dump i_vcd_dump();
 
 
 endmodule
-

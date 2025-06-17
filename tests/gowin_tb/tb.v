@@ -1,17 +1,17 @@
 //---------------------------------------------------------------------
 // File name  : tb.v
 // Module name: tb
-// Created by : 
+// Created by :
 // ---------------------------------------------------------------------
 // Release history
 // ----------------------------------------------------------------------------------
 // Ver:    |  Author    | Mod. Date    | Changes Made:
 // ----------------------------------------------------------------------------------
-// V1.0    | Caojie     | 07/17/19     | Initial version 
+// V1.0    | Caojie     | 07/17/19     | Initial version
 // ----------------------------------------------------------------------------------
-// V2.0    | Caojie     | 08/07/20     | DVI IP update 
+// V2.0    | Caojie     | 08/07/20     | DVI IP update
 // ----------------------------------------------------------------------------------
-// V2.1    | Caojie     | 02/24/21     | DVI IP update 
+// V2.1    | Caojie     | 02/24/21     | DVI IP update
 // ----------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -26,9 +26,9 @@ parameter BMP_PIXEL_CLK_FREQ	   = 1000.0/BMP_PIXEL_CLK_PERIOD;//pixel clock freq
 parameter BMP_WIDTH				   = 160;
 parameter BMP_HEIGHT			   = 120;
 parameter BMP_OPENED_NAME		   = "../../tb/pic/img160.bmp";
-parameter BMP_REPEAT			   = 1'b1;  //0:bmp increase  , 1:bmp repeat 
+parameter BMP_REPEAT			   = 1'b1;  //0:bmp increase  , 1:bmp repeat
 parameter BMP_LINK				   = 1'b0;  //0:单像素；1:双像素
-								   
+
 parameter BMP_OUTPUTED_WIDTH	   = BMP_WIDTH;
 parameter BMP_OUTPUTED_HEIGHT	   = BMP_HEIGHT;
 parameter BMP_OUTPUTED_NAME		   = "../../tb/pic/out0_001.bmp";
@@ -41,10 +41,10 @@ reg  rst_n;
 
 //------------
 //dirver
-wire	   vsync; 
-wire	   hsync; 
-wire	   data_valid; 
-wire [7:0] data0_r; 
+wire	   vsync;
+wire	   hsync;
+wire	   data_valid;
+wire [7:0] data0_r;
 wire [7:0] data0_g;
 wire [7:0] data0_b;
 
@@ -59,19 +59,19 @@ wire        rx0_pclk   ;
 wire        rx0_vsync  ;
 wire        rx0_hsync  ;
 wire        rx0_de     ;
-wire [7:0]  rx0_r      ; 
-wire [7:0]  rx0_g      ; 
-wire [7:0]  rx0_b      ; 
+wire [7:0]  rx0_r      ;
+wire [7:0]  rx0_g      ;
+wire [7:0]  rx0_b      ;
 
-wire [3:0]  pll_phase     ;  
+wire [3:0]  pll_phase     ;
 wire        pll_phase_lock;
 
 //-----------------
 //monitor rgb input
 wire		m_clk;
-wire		m_vs_rgb;  
-wire		m_hs_rgb;  
-wire		m_de_rgb;  
+wire		m_vs_rgb;
+wire		m_hs_rgb;
+wire		m_de_rgb;
 wire [7:0]  m_data0_r;
 wire [7:0]  m_data0_g;
 wire [7:0]  m_data0_b;
@@ -82,7 +82,7 @@ wire [7:0]  m_data1_b;
 //=====================================================
 GSR GSR(.GSRI(1'b1));
 
-//==============================================  
+//==============================================
 initial begin
   $fsdbDumpfile("tb.fsdb");
   $fsdbDumpvars;
@@ -103,7 +103,7 @@ always  #(BMP_PIXEL_CLK_PERIOD/2.0) pixel_clock = ~pixel_clock;
 initial
   begin
 	rst_n=1'b0;
-	
+
 	#2000;
 	rst_n=1'b1;
 end
@@ -124,13 +124,13 @@ driver_inst
 	.repeat_en     (BMP_REPEAT ),
 	.video_gen_en  (rst_n 	   ),
 	.pixel_clock   (pixel_clock),
-	.vsync	       (vsync	   ),//负极性 
-	.hsync	       (hsync	   ),//负极性 
+	.vsync	       (vsync	   ),//负极性
+	.hsync	       (hsync	   ),//负极性
 	.data_valid    (data_valid ),
-	.data0_r       (data0_r	   ), 
+	.data0_r       (data0_r	   ),
 	.data0_g       (data0_g	   ),
-	.data0_b       (data0_b	   ), 
-	.data1_r       (     	   ), 
+	.data0_b       (data0_b	   ),
+	.data1_r       (     	   ),
 	.data1_g       (     	   ),
 	.data1_b       (     	   )
 );
@@ -141,12 +141,12 @@ DVI_TX_Top DVI_TX_Top_inst
 (
 	.I_rst_n       (rst_n         ),   //asynchronous reset, low active
 	.I_rgb_clk     (pixel_clock   ),   //pixel clock
-	.I_rgb_vs      (vsync         ),  
-	.I_rgb_hs      (hsync         ),        
-	.I_rgb_de      (data_valid    ), 
-	.I_rgb_r       (data0_r       ),  
-	.I_rgb_g       (data0_g       ),  
-	.I_rgb_b       (data0_b       ), 
+	.I_rgb_vs      (vsync         ),
+	.I_rgb_hs      (hsync         ),
+	.I_rgb_de      (data_valid    ),
+	.I_rgb_r       (data0_r       ),
+	.I_rgb_g       (data0_g       ),
+	.I_rgb_b       (data0_b       ),
 	.O_tmds_clk_p  (tmds_clk_p    ),
 	.O_tmds_clk_n  (tmds_clk_n    ),
 	.O_tmds_data_p (tmds_data_p   ),  //{r,g,b}
@@ -154,15 +154,15 @@ DVI_TX_Top DVI_TX_Top_inst
 );
 
 //======================================================
-//DVI to RGB  
+//DVI to RGB
 DVI_RX_Top DVI_RX_Top_inst
 (
-	.I_rst_n         (rst_n       ),// active low 
-	.I_tmds_clk_p    (tmds_clk_p  ),  
-	.I_tmds_clk_n    (tmds_clk_n  ),  
+	.I_rst_n         (rst_n       ),// active low
+	.I_tmds_clk_p    (tmds_clk_p  ),
+	.I_tmds_clk_n    (tmds_clk_n  ),
 	.I_tmds_data_p   (tmds_data_p ),  //{r,g,b}
-	.I_tmds_data_n   (tmds_data_n ),  
-    .O_pll_phase     (pll_phase     ),  
+	.I_tmds_data_n   (tmds_data_n ),
+    .O_pll_phase     (pll_phase     ),
     .O_pll_phase_lock(pll_phase_lock),
 	.O_rgb_clk       (rx0_pclk    ),
 	.O_rgb_vs        (rx0_vsync   ),
@@ -197,16 +197,16 @@ monitor_inst
 (
   .link_i	    (BMP_LINK	), //0,单像素；1，双像素
   .video2bmp_en (rst_n		),
-  .pixel_clock  (m_clk		), 
-  .vsync		(m_vs_rgb	), //负极性	   
-  .hsync		(m_hs_rgb	), //负极性	   
-  .data_valid   (m_de_rgb	), 
-  .data0_r	    (m_data0_r	),	
+  .pixel_clock  (m_clk		),
+  .vsync		(m_vs_rgb	), //负极性
+  .hsync		(m_hs_rgb	), //负极性
+  .data_valid   (m_de_rgb	),
+  .data0_r	    (m_data0_r	),
   .data0_g	    (m_data0_g	),
   .data0_b	    (m_data0_b	),
-  .data1_r	    (m_data1_r	),	
+  .data1_r	    (m_data1_r	),
   .data1_g	    (m_data1_g	),
   .data1_b	    (m_data1_b	)
 );
-		  
+
 endmodule

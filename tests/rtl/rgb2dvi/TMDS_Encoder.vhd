@@ -8,8 +8,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2014 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -25,14 +25,14 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
@@ -42,7 +42,7 @@
 -- DVI 1.0 specifications and instantiates the serializer block. The 8-bit data
 -- and 3 control signals are encoded and transmitted over the data channel.
 -- The sDataOut_p/n ports must connect to top-level ports.
---  
+--
 -------------------------------------------------------------------------------
 
 
@@ -65,10 +65,10 @@ entity TMDS_Encoder is
       PixelClk : in std_logic;   --Recovered TMDS clock x1 (CLKDIV)
       SerialClk : in std_logic;  --Recovered TMDS clock x5 (CLK)
       aRst : in std_logic;       --asynchronous reset; must be reset when PixelClk/SerialClk is not within spec
-      
+
       --Encoded parallel data
       pDataOutRaw : out std_logic_vector(9 downto 0);
-      
+
       --Unencoded parallel data
       pDataOut : in std_logic_vector(7 downto 0);
       pC0 : in std_logic;
@@ -97,7 +97,7 @@ function sum_bits(u : std_logic_vector) return unsigned is
 		end loop;
 		return sum;
 	end sum_bits;
-	
+
 begin
 
 ----------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ q_m_1 <= q_m_xnor_1 when n1d_1 > 4 or (n1d_1 = 4 and pDataOut_1(0) = '0') else
          q_m_xor_1;
 
 n1q_m_1 <= sum_bits(q_m_1(7 downto 0));
-		
+
 ----------------------------------------------------------------------------------
 -- Pipeline stage 2, balance DC
 ----------------------------------------------------------------------------------
@@ -161,7 +161,7 @@ control_token_2 <= 	kCtlTkn0 when pC1_2 = '0' and pC0_2 = '0' else
                      kCtlTkn1 when pC1_2 = '0' and pC0_2 = '1' else
                      kCtlTkn2 when pC1_2 = '1' and pC0_2 = '0' else
                      kCtlTkn3;
-							
+
 q_out_2 <=  control_token_2												when pVde_2 = '0' else	--control period
 			   not q_m_2(8) & q_m_2(8) & not q_m_2(7 downto 0)    when cond_balanced_2 = '1' and q_m_2(8) = '0' else
 			   not q_m_2(8) & q_m_2(8) & q_m_2(7 downto 0)        when cond_balanced_2 = '1' and q_m_2(8) = '1' else
@@ -186,5 +186,5 @@ begin
       pDataOutRaw <= q_out_2; --encoded, ready to be serialized
    end if;
 end process Stage3;
-		
+
 end Behavioral;

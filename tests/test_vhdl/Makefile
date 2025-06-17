@@ -18,8 +18,8 @@ VHDL_SOURCES+=\
 COCOTB_SOURCES = \
     ./dut.vhd
 
-COMPILE_ARGS+=-fsynopsys -fexplicit 
-COMPILE_ARGS+=-Whide 
+COMPILE_ARGS+=-fsynopsys -fexplicit
+COMPILE_ARGS+=-Whide
 
 include ${WORK_BASE}/rtlflo/cocotb_helper.mak
 

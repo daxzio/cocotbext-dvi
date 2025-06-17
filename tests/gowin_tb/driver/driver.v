@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------
 // File name  : driver.v
 // Module name: driver
-// Created by : 
+// Created by :
 // ---------------------------------------------------------------------
 // Release history
 // VERSION |  Date       | AUTHOR     |    DESCRIPTION
@@ -16,15 +16,15 @@ module driver
   input        repeat_en   , //0:bmp increase  , 1:bmp repeat
   input        video_gen_en,
   input        pixel_clock ,
-  output       vsync       , 
-  output       hsync       , 
+  output       vsync       ,
+  output       hsync       ,
   output       data_valid  ,
-  output [7:0] data0_r     , 
+  output [7:0] data0_r     ,
   output [7:0] data0_g     ,
-  output [7:0] data0_b     , 
-  output [7:0] data1_r     , 
+  output [7:0] data0_b     ,
+  output [7:0] data1_r     ,
   output [7:0] data1_g     ,
-  output [7:0] data1_b       
+  output [7:0] data1_b
 );
 
 //========================================================================
@@ -33,7 +33,7 @@ parameter BMP_PIXEL_CLK_FREQ  = 74.250;//pixel clock frequency, unit: MHz
 parameter BMP_WIDTH           = 1366;
 parameter BMP_HEIGHT          = 768;
 parameter BMP_OPENED_NAME     = "../pic_lib/1366x768/round_24b.bmp";
-                              
+
 parameter HSYNC_POL           = "NEGATIVE"; //horizontal synchronization polarity. //"NEGATIVE" //"POSITIVE"
 parameter VSYNC_POL           = "NEGATIVE"; //vertical synchronization polarity.   //"NEGATIVE" //"POSITIVE"
 

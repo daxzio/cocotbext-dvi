@@ -41,7 +41,7 @@ As such there is a fully functionally RGB interfaces (Driver and Sink) in this m
 
 ### RGB Bus
 
-The `RGBBus` is used to map to a RGB interface on the `dut`.  These hold instances of bus objects for the individual channels, which are currently extensions of `cocotb_bus.bus.Bus`.  Class methods `from_entity` and `from_prefix` are provided to facilitate signal default name matching. 
+The `RGBBus` is used to map to a RGB interface on the `dut`.  These hold instances of bus objects for the individual channels, which are currently extensions of `cocotb_bus.bus.Bus`.  Class methods `from_entity` and `from_prefix` are provided to facilitate signal default name matching.
 
 #### Required:
 * _vsync_
@@ -61,8 +61,8 @@ The `RGBBus` is used to map to a RGB interface on the `dut`.  These hold instanc
     rgb_in_bus = RGBBus.from_prefix(dut, prefix="vid_in")
 ```
 
-or 
-    
+or
+
 ```python
     signals_in = {
         "vsync": "vid_in_vsync",
@@ -95,7 +95,7 @@ The `RGBDriver` class implement a RGB driver and is capable of generating RGB888
 #### Methods
 
 * `await_start()`: Return when an image has begun (if already begun return immediatly)
-* `await_image(num)`: Return then a full number of image, `num`, image, frames, has been complete. `num` default `1`  
+* `await_image(num)`: Return then a full number of image, `num`, image, frames, has been complete. `num` default `1`
 
 ### RGB Sink
 
@@ -120,13 +120,13 @@ The `RGBSink` class implement a RGB sink and is capable of receiving RGB888 sign
 
 #### Methods
 
-* `frame_finished(num)`: Return then a full number of image, `num`, image, frames, has been received. `num` default `1` 
+* `frame_finished(num)`: Return then a full number of image, `num`, image, frames, has been received. `num` default `1`
 
 ## DVI
 
 ### DVI Bus
 
-The `DVIBus` is used to map to a DVI interface on the `dut`.  These hold instances of bus objects for the individual channels, which are currently extensions of `cocotb_bus.bus.Bus`.  Class methods `from_entity` and `from_prefix` are provided to facilitate signal default name matching. 
+The `DVIBus` is used to map to a DVI interface on the `dut`.  These hold instances of bus objects for the individual channels, which are currently extensions of `cocotb_bus.bus.Bus`.  Class methods `from_entity` and `from_prefix` are provided to facilitate signal default name matching.
 
 #### Required:
 * _clk_p_
@@ -142,8 +142,8 @@ The `DVIBus` is used to map to a DVI interface on the `dut`.  These hold instanc
     dvi_in_bus = DVIBus.from_prefix(dut, prefix="tmds_in")
 ```
 
-or 
-    
+or
+
 
 ```python
     signals_in = {
@@ -157,5 +157,3 @@ or
 
 
 ## DVI
-
-

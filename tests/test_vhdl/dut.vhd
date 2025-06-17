@@ -23,7 +23,7 @@ entity dut is
       tmds_out_data_p : out std_logic_vector(2 downto 0);
       tmds_out_data_n : out std_logic_vector(2 downto 0)
   );
-end entity; 
+end entity;
 
 architecture tb of dut is
 

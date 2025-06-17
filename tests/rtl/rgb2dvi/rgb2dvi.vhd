@@ -9,8 +9,8 @@
 -------------------------------------------------------------------------------
 -- (c) 2014 Copyright Digilent Incorporated
 -- All Rights Reserved
--- 
--- This program is free software; distributed under the terms of BSD 3-clause 
+--
+-- This program is free software; distributed under the terms of BSD 3-clause
 -- license ("Revised BSD License", "New BSD License", or "Modified BSD License")
 --
 -- Redistribution and use in source and binary forms, with or without modification,
@@ -26,14 +26,14 @@
 --    from this software without specific prior written permission.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
--- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
--- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
--- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
--- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
--- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
--- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
--- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
--- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+-- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+-- SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+-- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+-- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
@@ -43,8 +43,8 @@
 -- TMDS data channels and one TMDS clock channel. It includes the necessary
 -- clock infrastructure (optional), encoding and serialization logic.
 -- On the input side it has 24-bit RGB video data bus, pixel clock and synchronization
--- signals. 
---  
+-- signals.
+--
 -------------------------------------------------------------------------------
 
 library IEEE;
@@ -63,32 +63,32 @@ entity rgb2dvi is
    Generic (
       kGenerateSerialClk : boolean := true;
       kClkPrimitive : string := "PLL"; -- "MMCM" or "PLL" to instantiate, if kGenerateSerialClk true
-      kClkRange : natural := 1;  -- MULT_F = kClkRange*5 (choose >=120MHz=1, >=60MHz=2, >=40MHz=3)      
+      kClkRange : natural := 1;  -- MULT_F = kClkRange*5 (choose >=120MHz=1, >=60MHz=2, >=40MHz=3)
       kRstActiveHigh : boolean := true;  --true, if active-high; false, if active-low
       kD0Swap : boolean := false;  -- P/N Swap Options
       kD1Swap : boolean := false;
       kD2Swap : boolean := false;
-      kClkSwap : boolean := false); 
+      kClkSwap : boolean := false);
    Port (
       -- DVI 1.0 TMDS video interface
       TMDS_Clk_p : out std_logic;
       TMDS_Clk_n : out std_logic;
       TMDS_Data_p : out std_logic_vector(2 downto 0);
       TMDS_Data_n : out std_logic_vector(2 downto 0);
-      
-      -- Auxiliary signals 
+
+      -- Auxiliary signals
       aRst : in std_logic; --asynchronous reset; must be reset when RefClk is not within spec
       aRst_n : in std_logic; --asynchronous reset; must be reset when RefClk is not within spec
-      
+
       -- Video in
       vid_pData : in std_logic_vector(23 downto 0);
       vid_pVDE : in std_logic;
       vid_pHSync : in std_logic;
       vid_pVSync : in std_logic;
       PixelClk : in std_logic; --pixel-clock recovered from the DVI interface
-      
+
       SerialClk : in std_logic); -- 5x PixelClk
-   
+
 end rgb2dvi;
 
 architecture Behavioral of rgb2dvi is
@@ -124,7 +124,7 @@ ClockGenInternal: if kGenerateSerialClk generate
          aRst => aRst_int,
          aLocked => aPixelClkLckd);
    --TODO revise this
-   aRstLck <= not aPixelClkLckd;         
+   aRstLck <= not aPixelClkLckd;
 end generate ClockGenInternal;
 
 ClockGenExternal: if not kGenerateSerialClk generate
@@ -155,7 +155,7 @@ ClockSerializer: entity work.OutputSERDES
       sDataOut_p => TMDS_Clk_p,
       sDataOut_n => TMDS_Clk_n,
       --Encoded parallel data (raw)
-      pDataOut => pClkOut,      
+      pDataOut => pClkOut,
       aRst => pRstLck);
 
 DataEncoders: for i in 0 to 2 generate
@@ -180,7 +180,7 @@ DataEncoders: for i in 0 to 2 generate
          sDataOut_n => TMDS_Data_n(i),
          --Encoded parallel data (raw)
          pDataOut => pDataOutRaw_q(i),
-         aRst => pRstLck);      
+         aRst => pRstLck);
 end generate DataEncoders;
 
 -- Swap each bit
