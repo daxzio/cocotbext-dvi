@@ -58,7 +58,7 @@ class TMDS:
 
             one_cnt = 0
             for i in range(8):
-                one_cnt += ((self.tmdsout * 0xFF) >> i) & 0x1
+                one_cnt += ((self.tmdsout & 0xFF) >> i) & 0x1
             zero_cnt = 8 - one_cnt
 
             diff_q_m = one_cnt - zero_cnt
@@ -74,11 +74,11 @@ class TMDS:
                 ):
                     invert = True
                     self.bias -= diff_q_m
-                    self.bias += 2 * (not xor)
+                    self.bias += 2 * xor
                 else:
                     invert = False
                     self.bias += diff_q_m
-                    self.bias += 2 * xor
+                    self.bias += 2 * (not(xor))
 
             if invert:
                 self.tmdsout = self.tmdsout ^ 0xFF
